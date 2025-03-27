@@ -1,13 +1,13 @@
-import { createManifestHandler } from "@saleor/app-sdk/handlers/next-app-router";
+import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
 import { AppManifest } from "@saleor/app-sdk/types";
-import { withSpanAttributesAppRouter } from "@saleor/apps-otel/src/with-span-attributes";
+import { withSpanAttributes } from "@saleor/apps-otel/src/with-span-attributes";
 import { compose } from "@saleor/apps-shared";
 
 import { env } from "@/env";
 import { withLoggerContext } from "@/logger-context";
 
-import packageJson from "../../../../package.json";
-import { appWebhooks } from "../../../../webhooks";
+import packageJson from "../../../package.json";
+import { appWebhooks } from "../../../webhooks";
 
 const handler = createManifestHandler({
   async manifestFactory({ appBaseUrl }) {
@@ -40,4 +40,4 @@ const handler = createManifestHandler({
   },
 });
 
-export const GET = compose(withLoggerContext, withSpanAttributesAppRouter)(handler);
+export default compose(withLoggerContext, withSpanAttributes)(handler);

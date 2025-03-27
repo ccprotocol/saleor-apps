@@ -20,12 +20,7 @@ describe("AvataxOrderCancelledAdapter", () => {
     );
 
     try {
-      await adapter.send({
-        payload: {
-          avataxId: "1",
-        },
-        config: new AvataxConfigMockGenerator().generateAvataxConfig(),
-      });
+      await adapter.send({ avataxId: "1" }, new AvataxConfigMockGenerator().generateAvataxConfig());
     } catch (e) {
       // console.log("Error", e);
       return expect(e).toBeInstanceOf(AvataxOrderCancelledAdapter.DocumentNotFoundError);

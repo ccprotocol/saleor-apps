@@ -1,10 +1,10 @@
 import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 import { AuthData } from "@saleor/app-sdk/APL";
-import { buildSyncWebhookResponsePayload } from "@saleor/app-sdk/handlers/shared";
 import { ObservabilityAttributes } from "@saleor/apps-otel/src/observability-attributes";
-import { withSpanAttributesAppRouter } from "@saleor/apps-otel/src/with-span-attributes";
+import { withSpanAttributes } from "@saleor/apps-otel/src/with-span-attributes";
 import { compose } from "@saleor/apps-shared";
-import { captureException, setTag } from "@sentry/nextjs";
+import * as Sentry from "@sentry/nextjs";
+import { captureException } from "@sentry/nextjs";
 
 import { AppConfigExtractor } from "@/lib/app-config-extractor";
 import { AppConfigurationLogger } from "@/lib/app-configuration-logger";
@@ -37,8 +37,11 @@ import { orderCalculateTaxesSyncWebhook } from "@/modules/webhooks/definitions/o
 import { CalculateTaxesPayload } from "@/modules/webhooks/payloads/calculate-taxes-payload";
 import { verifyCalculateTaxesPayload } from "@/modules/webhooks/validate-webhook-payload";
 
-const orderCalculateTaxesSyncWebhookReponse =
-  buildSyncWebhookResponsePayload<"ORDER_CALCULATE_TAXES">;
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 const logger = createLogger("orderCalculateTaxesSyncWebhook");
 
@@ -71,17 +74,12 @@ const createAvataxCalculateTaxesPayloadTransformer = (
 /**
  * @deprecated use CalculateTaxesUseCase instead, see checkout-calculate-taxes handler
  */
-async function calculateTaxes({
-  payload,
-  avataxConfig,
-  authData,
-  discountStrategy,
-}: {
-  payload: CalculateTaxesPayload;
-  avataxConfig: AvataxConfig;
-  authData: AuthData;
-  discountStrategy: AutomaticallyDistributedProductLinesDiscountsStrategy;
-}) {
+async function calculateTaxes(
+  payload: CalculateTaxesPayload,
+  avataxConfig: AvataxConfig,
+  authData: AuthData,
+  discountStrategy: AutomaticallyDistributedProductLinesDiscountsStrategy,
+) {
   const avaTaxSdk = new AvataxSdkClientFactory().createClient(avataxConfig);
   const avaTaxClient = new AvataxClient(avaTaxSdk);
   const calculateTaxesPayloadTransformer = createAvataxCalculateTaxesPayloadTransformer(
@@ -100,7 +98,7 @@ async function calculateTaxes({
   return response;
 }
 
-const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) => {
+const handler = orderCalculateTaxesSyncWebhook.createHandler(async (req, res, ctx) => {
   return appInternalTracer.startActiveSpan(
     "executing orderCalculateTaxes webhook handler",
     {
@@ -114,9 +112,9 @@ const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) =
       const appMetadata = ctx.payload.recipient?.privateMetadata ?? [];
 
       metadataCache.setMetadata(appMetadata);
-      const { payload, authData } = ctx;
-
       try {
+        const { payload, authData } = ctx;
+
         span.setAttribute(ObservabilityAttributes.SALEOR_API_URL, authData.saleorApiUrl);
 
         subscriptionErrorChecker.checkPayload(payload);
@@ -125,7 +123,7 @@ const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) =
         loggerContext.set("orderId", orderId);
 
         if (payload.version) {
-          setTag(ObservabilityAttributes.SALEOR_VERSION, payload.version);
+          Sentry.setTag(ObservabilityAttributes.SALEOR_VERSION, payload.version);
           loggerContext.set(ObservabilityAttributes.SALEOR_VERSION, payload.version);
           span.setAttribute(ObservabilityAttributes.SALEOR_VERSION, payload.version);
         }
@@ -141,7 +139,7 @@ const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) =
 
           CalculateTaxesLogRequest.createErrorLog({
             sourceId: payload.taxBase.sourceObject.id,
-            channelId: payload.taxBase.channel.id,
+            channelSlug: payload.taxBase.channel.slug,
             sourceType: "order",
             errorReason: "Missing address or lines",
           })
@@ -155,14 +153,7 @@ const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) =
           });
           span.end();
 
-          return Response.json(
-            {
-              message: payloadVerificationResult.error.message,
-            },
-            {
-              status: 400,
-            },
-          );
+          return res.status(400).json({ message: payloadVerificationResult.error.message });
         }
 
         const configExtractor = new AppConfigExtractor();
@@ -193,7 +184,7 @@ const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) =
 
           CalculateTaxesLogRequest.createErrorLog({
             sourceId: payload.taxBase.sourceObject.id,
-            channelId: payload.taxBase.channel.id,
+            channelSlug: payload.taxBase.channel.slug,
             sourceType: "order",
             errorReason: "Cannot get app configuration",
           })
@@ -207,12 +198,9 @@ const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) =
           });
           span.end();
 
-          return Response.json(
-            {
-              message: `App configuration is broken for order: ${payload.taxBase.sourceObject.id}`,
-            },
-            { status: 400 },
-          );
+          return res.status(400).json({
+            message: `App configuration is broken for order: ${payload.taxBase.sourceObject.id}`,
+          });
         }
 
         const providerConfig = config.value.getConfigForChannelSlug(channelSlug);
@@ -220,7 +208,7 @@ const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) =
         if (providerConfig.isErr()) {
           CalculateTaxesLogRequest.createErrorLog({
             sourceId: payload.taxBase.sourceObject.id,
-            channelId: payload.taxBase.channel.id,
+            channelSlug: payload.taxBase.channel.slug,
             sourceType: "order",
             errorReason: "Invalid app configuration",
           })
@@ -234,26 +222,23 @@ const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) =
           });
           span.end();
 
-          return Response.json(
-            {
-              message: `App is not configured properly for order: ${payload.taxBase.sourceObject.id}`,
-            },
-            { status: 400 },
-          );
+          return res.status(400).json({
+            message: `App is not configured properly for order: ${payload.taxBase.sourceObject.id}`,
+          });
         }
 
-        const calculatedTaxes = await calculateTaxes({
+        const calculatedTaxes = await calculateTaxes(
           payload,
-          avataxConfig: providerConfig.value.avataxConfig.config,
-          authData: ctx.authData,
+          providerConfig.value.avataxConfig.config,
+          ctx.authData,
           discountStrategy,
-        });
+        );
 
         logger.info("Taxes calculated - returning response do Saleor");
 
         CalculateTaxesLogRequest.createSuccessLog({
           sourceId: payload.taxBase.sourceObject.id,
-          channelId: payload.taxBase.channel.id,
+          channelSlug: payload.taxBase.channel.slug,
           sourceType: "order",
           calculatedTaxesResult: calculatedTaxes,
         })
@@ -266,9 +251,7 @@ const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) =
         });
         span.end();
 
-        return Response.json(orderCalculateTaxesSyncWebhookReponse(calculatedTaxes), {
-          status: 200,
-        });
+        return res.status(200).json(ctx.buildResponse(calculatedTaxes));
       } catch (error) {
         span.recordException(error as Error); // todo: remove casting when error handling is refactored
 
@@ -282,7 +265,7 @@ const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) =
 
           CalculateTaxesLogRequest.createErrorLog({
             sourceId: orderId,
-            channelId: payload.taxBase.channel.id,
+            channelSlug: channelSlug,
             sourceType: "order",
             errorReason: "AvaTax API returned an error",
           })
@@ -295,19 +278,16 @@ const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) =
           });
           span.end();
 
-          return Response.json(
-            {
-              message:
-                "GetTaxError: A problem occurred when you attempted to create a transaction through AvaTax. Check your address or line items.",
-            },
-            { status: 400 },
-          );
+          return res.status(400).json({
+            message:
+              "GetTaxError: A problem occurred when you attempted to create a transaction through AvaTax. Check your address or line items.",
+          });
         }
 
         if (error instanceof AvataxInvalidAddressError) {
           CalculateTaxesLogRequest.createErrorLog({
             sourceId: orderId,
-            channelId: payload.taxBase.channel.id,
+            channelSlug: channelSlug,
             sourceType: "order",
             errorReason: "Invalid address",
           })
@@ -325,18 +305,15 @@ const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) =
           });
           span.end();
 
-          return Response.json(
-            {
-              message: "InvalidAppAddressError: Check address in app configuration",
-            },
-            { status: 400 },
-          );
+          return res.status(400).json({
+            message: "InvalidAppAddressError: Check address in app configuration",
+          });
         }
 
         if (error instanceof AvataxStringLengthError) {
           CalculateTaxesLogRequest.createErrorLog({
             sourceId: orderId,
-            channelId: payload.taxBase.channel.id,
+            channelSlug: channelSlug,
             sourceType: "order",
             errorReason: "Invalid address",
           })
@@ -356,18 +333,15 @@ const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) =
           });
           span.end();
 
-          return Response.json(
-            {
-              message: `AvaTax service returned validation error: ${error.description} `,
-            },
-            { status: 400 },
-          );
+          return res.status(400).json({
+            message: `AvaTax service returned validation error: ${error.description} `,
+          });
         }
 
         if (error instanceof AvataxEntityNotFoundError) {
           CalculateTaxesLogRequest.createErrorLog({
             sourceId: orderId,
-            channelId: payload.taxBase.channel.id,
+            channelSlug: channelSlug,
             sourceType: "order",
             errorReason: "Entity not found",
           })
@@ -385,19 +359,16 @@ const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) =
           });
           span.end();
 
-          return Response.json(
-            {
-              message: `AvaTax service returned validation error: ${error.description} `,
-            },
-            { status: 400 },
-          );
+          return res.status(400).json({
+            message: `AvaTax service returned validation error: ${error.description} `,
+          });
         }
 
-        captureException(error);
+        Sentry.captureException(error);
 
         CalculateTaxesLogRequest.createErrorLog({
           sourceId: orderId,
-          channelId: payload.taxBase.channel.id,
+          channelSlug: channelSlug,
           sourceType: "order",
           errorReason: "Unhandled error",
         })
@@ -410,14 +381,10 @@ const handler = orderCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) =
         });
         span.end();
 
-        return Response.json({ message: "Unhandled error" }, { status: 500 });
+        return res.status(500).json({ message: "Unhandled error" });
       }
     },
   );
 });
 
-export const POST = compose(
-  withLoggerContext,
-  withMetadataCache,
-  withSpanAttributesAppRouter,
-)(handler);
+export default compose(withLoggerContext, withMetadataCache, withSpanAttributes)(handler);

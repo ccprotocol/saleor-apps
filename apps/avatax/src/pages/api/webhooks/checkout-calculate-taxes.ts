@@ -1,9 +1,9 @@
 import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
-import { buildSyncWebhookResponsePayload } from "@saleor/app-sdk/handlers/shared";
 import { ObservabilityAttributes } from "@saleor/apps-otel/src/observability-attributes";
-import { withSpanAttributesAppRouter } from "@saleor/apps-otel/src/with-span-attributes";
+import { withSpanAttributes } from "@saleor/apps-otel/src/with-span-attributes";
 import { compose } from "@saleor/apps-shared";
-import { captureException, setTag } from "@sentry/nextjs";
+import * as Sentry from "@sentry/nextjs";
+import { captureException } from "@sentry/nextjs";
 
 import { AppConfigExtractor } from "@/lib/app-config-extractor";
 import { AppConfigurationLogger } from "@/lib/app-configuration-logger";
@@ -20,12 +20,15 @@ import { LogWriterFactory } from "@/modules/client-logs/log-writer-factory";
 import { AvataxInvalidAddressError } from "@/modules/taxes/tax-error";
 import { checkoutCalculateTaxesSyncWebhook } from "@/modules/webhooks/definitions/checkout-calculate-taxes";
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 const withMetadataCache = wrapWithMetadataCache(metadataCache);
 
-const checkoutCalculateTaxesSyncWebhookReponse =
-  buildSyncWebhookResponsePayload<"CHECKOUT_CALCULATE_TAXES">;
-
-const handler = checkoutCalculateTaxesSyncWebhook.createHandler(async (_req, ctx) => {
+const handler = checkoutCalculateTaxesSyncWebhook.createHandler(async (req, res, ctx) => {
   return appInternalTracer.startActiveSpan(
     "executing checkoutCalculateTaxes webhook handler",
     {
@@ -62,7 +65,7 @@ const handler = checkoutCalculateTaxesSyncWebhook.createHandler(async (_req, ctx
         loggerContext.set(ObservabilityAttributes.CHECKOUT_ID, ctx.payload.taxBase.sourceObject.id);
 
         if (payload.version) {
-          setTag(ObservabilityAttributes.SALEOR_VERSION, payload.version);
+          Sentry.setTag(ObservabilityAttributes.SALEOR_VERSION, payload.version);
           loggerContext.set(ObservabilityAttributes.SALEOR_VERSION, payload.version);
           span.setAttribute(ObservabilityAttributes.SALEOR_VERSION, payload.version);
         }
@@ -107,12 +110,9 @@ const handler = checkoutCalculateTaxesSyncWebhook.createHandler(async (_req, ctx
           });
           span.end();
 
-          return Response.json(
-            {
-              message: `App configuration is broken for checkout: ${payload.taxBase.sourceObject.id}`,
-            },
-            { status: 400 },
-          );
+          return res.status(400).json({
+            message: `App configuration is broken for checkout: ${payload.taxBase.sourceObject.id}`,
+          });
         }
 
         return useCase.calculateTaxes(payload, authData).then((result) => {
@@ -123,9 +123,7 @@ const handler = checkoutCalculateTaxesSyncWebhook.createHandler(async (_req, ctx
                 message: "Taxes calculated successfully",
               });
               span.end();
-              return Response.json(checkoutCalculateTaxesSyncWebhookReponse(value), {
-                status: 200,
-              });
+              return res.status(200).json(ctx.buildResponse(value));
             },
             (error) => {
               logger.warn("Error calculating taxes", { error });
@@ -138,12 +136,9 @@ const handler = checkoutCalculateTaxesSyncWebhook.createHandler(async (_req, ctx
                     message: "Failed to calculate taxes: error from AvaTax API",
                   });
                   span.end();
-                  return Response.json(
-                    {
-                      message: `Failed to calculate taxes for checkout: ${payload.taxBase.sourceObject.id}`,
-                    },
-                    { status: 500 },
-                  );
+                  return res.status(500).json({
+                    message: `Failed to calculate taxes for checkout: ${payload.taxBase.sourceObject.id}`,
+                  });
                 }
                 case CalculateTaxesUseCase.ConfigBrokenError: {
                   span.setStatus({
@@ -151,12 +146,9 @@ const handler = checkoutCalculateTaxesSyncWebhook.createHandler(async (_req, ctx
                     message: "Failed to calculate taxes: invalid configuration",
                   });
                   span.end();
-                  return Response.json(
-                    {
-                      message: `Failed to calculate taxes due to invalid configuration for checkout: ${payload.taxBase.sourceObject.id}`,
-                    },
-                    { status: 500 },
-                  );
+                  return res.status(500).json({
+                    message: `Failed to calculate taxes due to invalid configuration for checkout: ${payload.taxBase.sourceObject.id}`,
+                  });
                 }
                 case CalculateTaxesUseCase.ExpectedIncompletePayloadError: {
                   span.setStatus({
@@ -164,14 +156,10 @@ const handler = checkoutCalculateTaxesSyncWebhook.createHandler(async (_req, ctx
                     message: "Failed to calucalted taxes: incomplete payload",
                   });
                   span.end();
-                  return Response.json(
-                    {
-                      message: `Taxes can't be calculated due to incomplete payload for checkout: ${payload.taxBase.sourceObject.id}`,
-                    },
-                    { status: 400 },
-                  );
+                  return res.status(400).json({
+                    message: `Taxes can't be calculated due to incomplete payload for checkout: ${payload.taxBase.sourceObject.id}`,
+                  });
                 }
-                default:
                 case CalculateTaxesUseCase.UnhandledError: {
                   captureException(error);
                   span.setStatus({
@@ -180,12 +168,9 @@ const handler = checkoutCalculateTaxesSyncWebhook.createHandler(async (_req, ctx
                   });
                   span.end();
 
-                  return Response.json(
-                    {
-                      message: `Failed to calculate taxes (Unhandled error) for checkout: ${payload.taxBase.sourceObject.id}`,
-                    },
-                    { status: 500 },
-                  );
+                  return res.status(500).json({
+                    message: `Failed to calculate taxes (Unhandled error) for checkout: ${payload.taxBase.sourceObject.id}`,
+                  });
                 }
               }
             },
@@ -206,15 +191,12 @@ const handler = checkoutCalculateTaxesSyncWebhook.createHandler(async (_req, ctx
           });
           span.end();
 
-          return Response.json(
-            {
-              message: "InvalidAppAddressError: Check address in app configuration",
-            },
-            { status: 400 },
-          );
+          return res.status(400).json({
+            message: "InvalidAppAddressError: Check address in app configuration",
+          });
         }
 
-        captureException(error);
+        Sentry.captureException(error);
 
         span.setStatus({
           code: SpanStatusCode.ERROR,
@@ -222,7 +204,7 @@ const handler = checkoutCalculateTaxesSyncWebhook.createHandler(async (_req, ctx
         });
         span.end();
 
-        return Response.json({ message: "Unhandled error" }, { status: 500 });
+        return res.status(500).json({ message: "Unhandled error" });
       }
     },
   );
@@ -231,8 +213,4 @@ const handler = checkoutCalculateTaxesSyncWebhook.createHandler(async (_req, ctx
 /**
  * TODO: Add tests to handler
  */
-export const POST = compose(
-  withLoggerContext,
-  withMetadataCache,
-  withSpanAttributesAppRouter,
-)(handler);
+export default compose(withLoggerContext, withMetadataCache, withSpanAttributes)(handler);

@@ -1,4 +1,4 @@
-import { captureException } from "@sentry/nextjs";
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 
 import { BaseError } from "../../error";
@@ -38,7 +38,7 @@ export class AvataxErrorsParser {
     ),
   });
 
-  parse(err: unknown, injectedErrorCapture = captureException) {
+  parse(err: unknown, injectedErrorCapture = Sentry.captureException) {
     const parsedError = AvataxErrorsParser.schema.safeParse(err);
 
     if (!parsedError.success) {

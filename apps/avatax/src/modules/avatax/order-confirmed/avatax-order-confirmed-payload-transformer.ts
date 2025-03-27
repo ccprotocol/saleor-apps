@@ -1,4 +1,4 @@
-import { captureException } from "@sentry/nextjs";
+import * as Sentry from "@sentry/nextjs";
 import { DocumentType } from "avatax/lib/enums/DocumentType";
 import { err, ok } from "neverthrow";
 
@@ -20,12 +20,10 @@ export class AvataxOrderConfirmedPayloadTransformer {
   private logger = createLogger("AvataxOrderConfirmedPayloadTransformer");
 
   constructor(
-    private deps: {
-      saleorOrderToAvataxLinesTransformer: SaleorOrderToAvataxLinesTransformer;
-      avataxEntityTypeMatcher: AvataxEntityTypeMatcher;
-      avataxCalculationDateResolver: AvataxCalculationDateResolver;
-      avataxDocumentCodeResolver: AvataxDocumentCodeResolver;
-    },
+    private saleorOrderToAvataxLinesTransformer: SaleorOrderToAvataxLinesTransformer,
+    private avataxEntityTypeMatcher: AvataxEntityTypeMatcher,
+    private avataxCalculationDateResolver: AvataxCalculationDateResolver,
+    private avataxDocumentCodeResolver: AvataxDocumentCodeResolver,
   ) {}
 
   private matchDocumentType(config: AvataxConfig): DocumentType {
@@ -65,16 +63,16 @@ export class AvataxOrderConfirmedPayloadTransformer {
     matches: AvataxTaxCodeMatches;
     discountsStrategy: PriceReductionDiscountsStrategy;
   }): Promise<CreateTransactionArgs> {
-    const entityUseCode = await this.deps.avataxEntityTypeMatcher.match(
+    const entityUseCode = await this.avataxEntityTypeMatcher.match(
       confirmedOrderEvent.getAvaTaxEntityCode(),
     );
 
-    const date = this.deps.avataxCalculationDateResolver.resolve(
+    const date = this.avataxCalculationDateResolver.resolve(
       confirmedOrderEvent.getAvaTaxTaxCalculationDate(),
       confirmedOrderEvent.getOrderCreationDate(),
     );
 
-    const code = this.deps.avataxDocumentCodeResolver.resolve({
+    const code = this.avataxDocumentCodeResolver.resolve({
       avataxDocumentCode: confirmedOrderEvent.getAvaTaxDocumentCode(),
       orderId: confirmedOrderEvent.getOrderId(),
     });
@@ -89,7 +87,7 @@ export class AvataxOrderConfirmedPayloadTransformer {
     const addressPayload = this.getSaleorAddress(confirmedOrderEvent);
 
     if (addressPayload.isErr()) {
-      captureException(addressPayload.error);
+      Sentry.captureException(addressPayload.error);
       this.logger.error("Error while transforming OrderConfirmedPayload", {
         error: addressPayload.error,
       });
@@ -114,7 +112,7 @@ export class AvataxOrderConfirmedPayloadTransformer {
         currencyCode: confirmedOrderEvent.getOrderCurrency(),
         // we can fall back to empty string because email is not a required field
         email: confirmedOrderEvent.resolveUserEmailOrEmpty(),
-        lines: this.deps.saleorOrderToAvataxLinesTransformer.transform({
+        lines: this.saleorOrderToAvataxLinesTransformer.transform({
           confirmedOrderEvent,
           matches,
           avataxConfig,

@@ -1,3 +1,4 @@
+/* eslint-disable node/no-process-env */
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
@@ -13,7 +14,7 @@ export const env = createEnv({
   },
   server: {
     ALLOWED_DOMAIN_PATTERN: z.string().optional(),
-    APL: z.enum(["saleor-cloud", "file"]).optional().default("file"),
+    APL: z.enum(["saleor-cloud", "file", "dynamodb"]).optional().default("file"),
     APP_API_BASE_URL: z.string().optional(),
     APP_IFRAME_BASE_URL: z.string().optional(),
     APP_LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
@@ -23,6 +24,7 @@ export const env = createEnv({
     AWS_SECRET_ACCESS_KEY: z.string(),
     DYNAMODB_LOGS_ITEM_TTL_IN_DAYS: z.coerce.number().positive().optional().default(14),
     DYNAMODB_LOGS_TABLE_NAME: z.string(),
+    DYNAMODB_MAIN_TABLE_NAME: z.string(),
     E2E_USER_NAME: z.string().optional(),
     E2E_USER_PASSWORD: z.string().optional(),
     FILE_APL_PATH: z.string().optional(),
@@ -39,8 +41,6 @@ export const env = createEnv({
     VERCEL_GIT_COMMIT_SHA: z.string().optional(),
     OTEL_ACCESS_TOKEN: z.string().optional(),
     VERCEL_ENV: z.string().optional(),
-    REPOSITORY_URL: z.string().optional(),
-    OTEL_TRACES_SAMPLER_ARG: z.coerce.number().min(0).max(1).optional().default(1),
   },
   shared: {
     NODE_ENV: z.enum(["development", "production", "test"]),
@@ -59,6 +59,7 @@ export const env = createEnv({
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     DYNAMODB_LOGS_ITEM_TTL_IN_DAYS: process.env.DYNAMODB_LOGS_ITEM_TTL_IN_DAYS,
     DYNAMODB_LOGS_TABLE_NAME: process.env.DYNAMODB_LOGS_TABLE_NAME,
+    DYNAMODB_MAIN_TABLE_NAME: process.env.DYNAMODB_MAIN_TABLE_NAME,
     E2E_USER_NAME: process.env.E2E_USER_NAME,
     E2E_USER_PASSWORD: process.env.E2E_USER_PASSWORD,
     ENV: process.env.ENV,
@@ -78,8 +79,6 @@ export const env = createEnv({
     VERCEL_GIT_COMMIT_SHA: process.env.VERCEL_GIT_COMMIT_SHA,
     OTEL_ACCESS_TOKEN: process.env.OTEL_ACCESS_TOKEN,
     VERCEL_ENV: process.env.VERCEL_ENV,
-    REPOSITORY_URL: process.env.REPOSITORY_URL,
-    OTEL_TRACES_SAMPLER_ARG: process.env.OTEL_TRACES_SAMPLER_ARG,
   },
   isServer: typeof window === "undefined" || process.env.NODE_ENV === "test",
 });

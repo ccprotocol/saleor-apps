@@ -3,7 +3,6 @@ import { ATTR_DEPLOYMENT_ENVIRONMENT_NAME } from "@opentelemetry/semantic-conven
 import { createAwsInstrumentation } from "@saleor/apps-otel/src/aws-instrumentation-factory";
 import { createBatchSpanProcessor } from "@saleor/apps-otel/src/batch-span-processor-factory";
 import { createHttpInstrumentation } from "@saleor/apps-otel/src/http-instrumentation-factory";
-import { ObservabilityAttributes } from "@saleor/apps-otel/src/observability-attributes";
 import { registerOTel } from "@vercel/otel";
 
 import { env } from "@/env";
@@ -15,11 +14,10 @@ registerOTel({
   attributes: {
     [ATTR_SERVICE_VERSION]: pkg.version,
     [ATTR_DEPLOYMENT_ENVIRONMENT_NAME]: env.ENV,
-    [ObservabilityAttributes.COMMIT_SHA]: env.VERCEL_GIT_COMMIT_SHA,
-    [ObservabilityAttributes.REPOSITORY_URL]: env.REPOSITORY_URL,
+    "commit-sha": env.VERCEL_GIT_COMMIT_SHA,
     // override attribute set by `@vercel/otel` - if you are using OSS version you can remove it
     env: undefined,
-    [ObservabilityAttributes.VERCEL_ENV]: env.VERCEL_ENV,
+    "vercel.env": env.VERCEL_ENV,
   },
   spanProcessors: [
     createBatchSpanProcessor({

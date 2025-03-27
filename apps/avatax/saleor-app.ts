@@ -1,7 +1,7 @@
-import { APL } from "@saleor/app-sdk/APL";
-import { FileAPL } from "@saleor/app-sdk/APL/file";
-import { SaleorCloudAPL } from "@saleor/app-sdk/APL/saleor-cloud";
+import { APL, FileAPL, SaleorCloudAPL } from "@saleor/app-sdk/APL";
 import { SaleorApp } from "@saleor/app-sdk/saleor-app";
+import { DynamoAPL } from "@lib/dynamodb-apl";
+import { DynamoAPLRepositoryFactory } from "@modules/db/dynamo-apl-repository-factory";
 
 import { env } from "@/env";
 
@@ -25,6 +25,12 @@ switch (env.APL) {
       token: env.REST_APL_TOKEN,
     });
 
+    break;
+  }
+  case "dynamodb": {
+    const repository = DynamoAPLRepositoryFactory.create();
+
+    apl = new DynamoAPL({ repository });
     break;
   }
   default: {

@@ -7,17 +7,12 @@ import {
 } from "../avatax/discounts";
 
 export interface WebhookAdapter<TPayload extends Record<string, any>, TResponse extends any> {
-  send({
-    payload,
-    config,
-    authData,
-    discountsStrategy,
-  }: {
-    payload: TPayload;
-    config: AvataxConfig;
-    authData: AuthData;
+  send(
+    payload: TPayload,
+    config: AvataxConfig,
+    authData: AuthData,
     discountsStrategy:
       | AutomaticallyDistributedProductLinesDiscountsStrategy
-      | PriceReductionDiscountsStrategy;
-  }): Promise<TResponse>;
+      | PriceReductionDiscountsStrategy,
+  ): Promise<TResponse>;
 }

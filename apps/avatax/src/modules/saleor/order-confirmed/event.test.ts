@@ -96,14 +96,14 @@ describe("SaleorOrderConfirmedEvent", () => {
         },
       })._unsafeUnwrap();
 
-      expect(event.hasShipping()).toBeFalsy();
+      expect(event.hasShipping()).toEqual(false);
     });
 
     it("should return true if order has shippingPrice net set to value other than 0", () => {
       const payload = SaleorOrderConfirmedEventMockFactory.getGraphqlPayload();
       const event = SaleorOrderConfirmedEvent.createFromGraphQL(payload)._unsafeUnwrap();
 
-      expect(event.hasShipping()).toBeTruthy();
+      expect(event.hasShipping()).toEqual(true);
     });
   });
 
@@ -112,7 +112,7 @@ describe("SaleorOrderConfirmedEvent", () => {
       const payload = SaleorOrderConfirmedEventMockFactory.getGraphqlPayload();
       const event = SaleorOrderConfirmedEvent.createFromGraphQL(payload)._unsafeUnwrap();
 
-      expect(event.getShippingAmount()).toStrictEqual(payload.order.shippingPrice.gross.amount);
+      expect(event.getShippingAmount()).toEqual(payload.order.shippingPrice.gross.amount);
     });
 
     it("should get shipping amount as shippingPrice net without tax included", () => {
@@ -132,7 +132,7 @@ describe("SaleorOrderConfirmedEvent", () => {
         },
       })._unsafeUnwrap();
 
-      expect(event.getShippingAmount()).toStrictEqual(payload.order.shippingPrice.net.amount);
+      expect(event.getShippingAmount()).toEqual(payload.order.shippingPrice.net.amount);
     });
   });
 
@@ -204,11 +204,11 @@ describe("SaleorOrderConfirmedEvent", () => {
     const event = SaleorOrderConfirmedEvent.createFromGraphQL(payload)._unsafeUnwrap();
 
     it("Returns shipping address", () => {
-      expect(event.getOrderShippingAddress()).toStrictEqual(payload.order.shippingAddress);
+      expect(event.getOrderShippingAddress()).toEqual(payload.order.shippingAddress);
     });
 
     it("Returns billing address", () => {
-      expect(event.getOrderBillingAddress()).toStrictEqual(payload.order.billingAddress);
+      expect(event.getOrderBillingAddress()).toEqual(payload.order.billingAddress);
     });
   });
 });

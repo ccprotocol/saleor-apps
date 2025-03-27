@@ -1,9 +1,10 @@
 import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 import { AuthData } from "@saleor/app-sdk/APL";
 import { ObservabilityAttributes } from "@saleor/apps-otel/src/observability-attributes";
-import { withSpanAttributesAppRouter } from "@saleor/apps-otel/src/with-span-attributes";
+import { withSpanAttributes } from "@saleor/apps-otel/src/with-span-attributes";
 import { compose } from "@saleor/apps-shared";
-import { captureException, setTag } from "@sentry/nextjs";
+import * as Sentry from "@sentry/nextjs";
+import { captureException } from "@sentry/nextjs";
 
 import { AppConfigExtractor } from "@/lib/app-config-extractor";
 import { AppConfigurationLogger } from "@/lib/app-configuration-logger";
@@ -27,42 +28,43 @@ import {
 } from "@/modules/taxes/tax-error";
 import { orderConfirmedAsyncWebhook } from "@/modules/webhooks/definitions/order-confirmed";
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 const logger = createLogger("orderConfirmedAsyncWebhook");
 
 const withMetadataCache = wrapWithMetadataCache(metadataCache);
 const subscriptionErrorChecker = new SubscriptionPayloadErrorChecker(logger, captureException);
-const discountsStrategy = new PriceReductionDiscountsStrategy();
+const discountStrategy = new PriceReductionDiscountsStrategy();
 
 const logsWriterFactory = new LogWriterFactory();
 
 /**
  * In the future this should be part of the use-case
  */
-async function confirmOrder({
-  confirmedOrderEvent,
-  avataxConfig,
-  authData,
-  discountsStrategy,
-}: {
-  confirmedOrderEvent: SaleorOrderConfirmedEvent;
-  avataxConfig: AvataxConfig;
-  authData: AuthData;
-  discountsStrategy: PriceReductionDiscountsStrategy;
-}) {
+async function confirmOrder(
+  confirmedOrderEvent: SaleorOrderConfirmedEvent,
+  avataxConfig: AvataxConfig,
+  authData: AuthData,
+  discountStrategy: PriceReductionDiscountsStrategy,
+) {
   const avataxOrderConfirmedAdapter =
     createAvaTaxOrderConfirmedAdapterFromAvaTaxConfig(avataxConfig);
 
-  const response = await avataxOrderConfirmedAdapter.send({
-    payload: { confirmedOrderEvent },
-    config: avataxConfig,
+  const response = await avataxOrderConfirmedAdapter.send(
+    { confirmedOrderEvent },
+    avataxConfig,
     authData,
-    discountsStrategy,
-  });
+    discountStrategy,
+  );
 
   return response;
 }
 
-const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
+const handler = orderConfirmedAsyncWebhook.createHandler(async (req, res, ctx) => {
   return appInternalTracer.startActiveSpan(
     "executing orderConfirmed handler",
     {
@@ -80,7 +82,7 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
       const { saleorApiUrl, token } = authData;
 
       if (payload.version) {
-        setTag(ObservabilityAttributes.SALEOR_VERSION, payload.version);
+        Sentry.setTag(ObservabilityAttributes.SALEOR_VERSION, payload.version);
         loggerContext.set(ObservabilityAttributes.SALEOR_VERSION, payload.version);
         span.setAttribute(ObservabilityAttributes.SALEOR_VERSION, payload.version);
       }
@@ -92,12 +94,12 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
         const error = confirmedOrderFromPayload.error;
 
         // Capture error when there is problem with parsing webhook payload - it should not happen
-        captureException(error);
+        Sentry.captureException(error);
         logger.error("Error parsing webhook payload into Saleor order", { error });
 
         OrderConfirmedLogRequest.createErrorLog({
           sourceId: payload.order?.id,
-          channelId: payload.order?.channel.id,
+          channelSlug: payload.order?.channel.slug,
           errorReason: "Error parsing Saleor event payload",
         })
           .mapErr(captureException)
@@ -110,7 +112,7 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
         });
         span.end();
 
-        return Response.json({ message: error.message }, { status: 500 });
+        return res.status(500).json({ message: error.message });
       }
 
       loggerContext.set(
@@ -128,7 +130,7 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
 
           OrderConfirmedLogRequest.createErrorLog({
             sourceId: payload.order?.id,
-            channelId: payload.order?.channel.id,
+            channelSlug: payload.order?.channel.slug,
             errorReason: "Order already fulfilled",
           })
             .mapErr(captureException)
@@ -140,12 +142,9 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
           });
           span.end();
 
-          return Response.json(
-            {
-              message: `Skipping fulfilled order to prevent duplication for order: ${payload.order?.id}`,
-            },
-            { status: 400 },
-          );
+          return res.status(400).json({
+            message: `Skipping fulfilled order to prevent duplication for order: ${payload.order?.id}`,
+          });
         }
 
         if (confirmedOrderEvent.isStrategyFlatRates()) {
@@ -153,7 +152,7 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
 
           OrderConfirmedLogRequest.createErrorLog({
             sourceId: payload.order?.id,
-            channelId: payload.order?.channel.id,
+            channelSlug: payload.order?.channel.slug,
             errorReason: "Order has flat tax rates strategy",
           })
             .mapErr(captureException)
@@ -165,12 +164,9 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
           });
           span.end();
 
-          return Response.json(
-            {
-              message: `Order ${payload.order?.id} has flat rates tax strategy.`,
-            },
-            { status: 202 },
-          );
+          return res
+            .status(202)
+            .json({ message: `Order ${payload.order?.id} has flat rates tax strategy.` });
         }
 
         const appMetadata = payload.recipient?.privateMetadata ?? [];
@@ -202,7 +198,7 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
         if (config.isErr()) {
           OrderConfirmedLogRequest.createErrorLog({
             sourceId: payload.order?.id,
-            channelId: payload.order?.channel.id,
+            channelSlug: payload.order?.channel.slug,
             errorReason: "Cannot get app configuration",
           })
             .mapErr(captureException)
@@ -217,12 +213,9 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
           });
           span.end();
 
-          return Response.json(
-            {
-              message: `App configuration is broken for order: ${payload.order?.id}`,
-            },
-            { status: 400 },
-          );
+          return res
+            .status(400)
+            .json({ message: `App configuration is broken for order: ${payload.order?.id}` });
         }
 
         metadataCache.setMetadata(appMetadata);
@@ -236,7 +229,7 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
         if (providerConfig.isErr()) {
           OrderConfirmedLogRequest.createErrorLog({
             sourceId: payload.order?.id,
-            channelId: payload.order?.channel.id,
+            channelSlug: payload.order?.channel.slug,
             errorReason: "Invalid app configuration",
           })
             .mapErr(captureException)
@@ -249,21 +242,18 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
           });
           span.end();
 
-          return Response.json(
-            {
-              message: `App is not configured properly for order: ${payload.order?.id}`,
-            },
-            { status: 400 },
-          );
+          return res.status(400).json({
+            message: `App is not configured properly for order: ${payload.order?.id}`,
+          });
         }
 
         try {
-          const confirmedOrder = await confirmOrder({
+          const confirmedOrder = await confirmOrder(
             confirmedOrderEvent,
-            avataxConfig: providerConfig.value.avataxConfig.config,
-            authData: ctx.authData,
-            discountsStrategy,
-          });
+            providerConfig.value.avataxConfig.config,
+            ctx.authData,
+            discountStrategy,
+          );
 
           logger.info("Order confirmed", { orderId: confirmedOrder.id });
 
@@ -282,7 +272,7 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
 
           OrderConfirmedLogRequest.createSuccessLog({
             sourceId: payload.order?.id,
-            channelId: payload.order?.channel.id,
+            channelSlug: payload.order?.channel.slug,
             avataxId: confirmedOrder.id,
           })
             .mapErr(captureException)
@@ -294,7 +284,7 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
           });
           span.end();
 
-          return Response.json({ message: "Success" }, { status: 200 });
+          return res.status(200).end();
         } catch (error) {
           logger.debug("Error confirming order in AvaTax", { error: error });
           span.recordException(error as Error); // todo: remove casting when error handling is refactored
@@ -303,7 +293,7 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
             case error instanceof TaxBadPayloadError: {
               OrderConfirmedLogRequest.createErrorLog({
                 sourceId: payload.order?.id,
-                channelId: payload.order?.channel.id,
+                channelSlug: payload.order?.channel.slug,
                 errorReason: "Invalid webhook payload",
               })
                 .mapErr(captureException)
@@ -315,17 +305,14 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
               });
               span.end();
 
-              return Response.json(
-                {
-                  message: `Order: ${payload.order?.id} data is not valid`,
-                },
-                { status: 400 },
-              );
+              return res
+                .status(400)
+                .json({ message: `Order: ${payload.order?.id} data is not valid` });
             }
             case error instanceof AvataxStringLengthError: {
               OrderConfirmedLogRequest.createErrorLog({
                 sourceId: payload.order?.id,
-                channelId: payload.order?.channel.id,
+                channelSlug: payload.order?.channel.slug,
                 errorReason: "Invalid address",
               })
                 .mapErr(captureException)
@@ -337,17 +324,14 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
               });
               span.end();
 
-              return Response.json(
-                {
-                  message: `AvaTax service returned validation error: ${error?.description}`,
-                },
-                { status: 400 },
-              );
+              return res.status(400).json({
+                message: `AvaTax service returned validation error: ${error?.description}`,
+              });
             }
             case error instanceof AvataxEntityNotFoundError: {
               OrderConfirmedLogRequest.createErrorLog({
                 sourceId: payload.order?.id,
-                channelId: payload.order?.channel.id,
+                channelSlug: payload.order?.channel.slug,
                 errorReason: "Entity not found",
               })
                 .mapErr(captureException)
@@ -359,20 +343,17 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
               });
               span.end();
 
-              return Response.json(
-                {
-                  message: `AvaTax service returned validation error: ${error?.description}`,
-                },
-                { status: 400 },
-              );
+              return res.status(400).json({
+                message: `AvaTax service returned validation error: ${error?.description}`,
+              });
             }
           }
-          captureException(error);
+          Sentry.captureException(error);
           logger.error("Unhandled error executing webhook", { error: error });
 
           OrderConfirmedLogRequest.createErrorLog({
             sourceId: payload.order?.id,
-            channelId: payload.order?.channel.id,
+            channelSlug: payload.order?.channel.slug,
             errorReason: "Unhandled error",
           })
             .mapErr(captureException)
@@ -384,16 +365,16 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
           });
           span.end();
 
-          return Response.json({ message: "Unhandled error" }, { status: 500 });
+          return res.status(500).json({ message: "Unhandled error" });
         }
       } catch (error) {
         span.recordException(error as Error);
-        captureException(error);
+        Sentry.captureException(error);
         logger.error("Unhandled error executing webhook", { error: error });
 
         OrderConfirmedLogRequest.createErrorLog({
           sourceId: payload.order?.id,
-          channelId: payload.order?.channel.id,
+          channelSlug: payload.order?.channel.slug,
           errorReason: "Unhandled error",
         })
           .mapErr(captureException)
@@ -405,14 +386,10 @@ const handler = orderConfirmedAsyncWebhook.createHandler(async (_req, ctx) => {
         });
         span.end();
 
-        return Response.json({ message: "Unhandled error" }, { status: 500 });
+        return res.status(500).json({ message: "Unhandled error" });
       }
     },
   );
 });
 
-export const POST = compose(
-  withLoggerContext,
-  withMetadataCache,
-  withSpanAttributesAppRouter,
-)(handler);
+export default compose(withLoggerContext, withMetadataCache, withSpanAttributes)(handler);

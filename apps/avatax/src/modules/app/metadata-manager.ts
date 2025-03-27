@@ -1,22 +1,40 @@
 import { EncryptedMetadataManager, MetadataEntry } from "@saleor/app-sdk/settings-manager";
-import { Client } from "urql";
+import { Client, gql } from "urql";
 
 import { env } from "@/env";
-import { BaseError } from "@/error";
 import { AppMetadataCache } from "@/lib/app-metadata-cache";
 import { createLogger } from "@/logger";
 
 import {
-  DeleteAppMetadataDocument,
   FetchAppDetailsDocument,
   FetchAppDetailsQuery,
   UpdatePrivateMetadataDocument,
 } from "../../../generated/graphql";
 
-const logger = createLogger("SettingsManager");
+gql`
+  mutation UpdateAppMetadata($id: ID!, $input: [MetadataInput!]!) {
+    updatePrivateMetadata(id: $id, input: $input) {
+      item {
+        privateMetadata {
+          key
+          value
+        }
+      }
+    }
+  }
+`;
 
-const MetadataManagerMutationError = BaseError.subclass("MetadataManagerMutationError");
-const MetadataManagerDeleteError = BaseError.subclass("MetadataManagerDeleteError");
+gql`
+  query FetchAppDetails {
+    app {
+      id
+      privateMetadata {
+        key
+        value
+      }
+    }
+  }
+`;
 
 export async function fetchAllMetadata(client: Pick<Client, "query">): Promise<MetadataEntry[]> {
   const { error, data } = await client
@@ -30,7 +48,7 @@ export async function fetchAllMetadata(client: Pick<Client, "query">): Promise<M
   return data?.app?.privateMetadata.map((md) => ({ key: md.key, value: md.value })) || [];
 }
 
-export async function updateMetadata(
+export async function mutateMetadata(
   client: Pick<Client, "mutation">,
   metadata: MetadataEntry[],
   appId: string,
@@ -43,9 +61,7 @@ export async function updateMetadata(
     .toPromise();
 
   if (mutationError) {
-    throw new MetadataManagerMutationError("Error during metadata update", {
-      cause: mutationError,
-    });
+    throw new Error(`Mutation error: ${mutationError.message}`);
   }
 
   return (
@@ -56,24 +72,7 @@ export async function updateMetadata(
   );
 }
 
-async function deleteMetadata(
-  client: Pick<Client, "mutation">,
-  keys: string[],
-  appId: string,
-): Promise<void> {
-  const { error } = await client
-    .mutation(DeleteAppMetadataDocument, {
-      id: appId,
-      keys,
-    })
-    .toPromise();
-
-  if (error) {
-    throw new MetadataManagerDeleteError("Error during metadata deletion", {
-      cause: error,
-    });
-  }
-}
+const logger = createLogger("SettingsManager");
 
 export const createSettingsManager = (
   client: Pick<Client, "mutation" | "query">,
@@ -103,7 +102,6 @@ export const createSettingsManager = (
       logger.debug("Cache not found, fetching metadata");
       return fetchAllMetadata(client);
     },
-    mutateMetadata: (metadata) => updateMetadata(client, metadata, appId),
-    deleteMetadata: (keys) => deleteMetadata(client, keys, appId),
+    mutateMetadata: (metadata) => mutateMetadata(client, metadata, appId),
   });
 };
