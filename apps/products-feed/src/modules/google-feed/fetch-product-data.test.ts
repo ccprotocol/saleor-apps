@@ -6,7 +6,7 @@ import {
   FetchProductAttributesDataDocument,
   FetchRelatedProductsDataDocument,
 } from "../../../generated/graphql";
-import { fetchProductData, getCursors } from "./fetch-product-data";
+import { fetchProductData,getCursors } from "./fetch-product-data";
 
 describe("getCursors", () => {
   it("loads cursor for each variant page ", async () => {
@@ -62,7 +62,7 @@ describe("getCursors", () => {
       channel: "channel-1",
     });
 
-    expect(cursors).toStrictEqual(["cursor-1", "cursor-2", "cursor-3"]);
+    expect(cursors).toEqual(["cursor-1", "cursor-2", "cursor-3"]);
   });
 });
 
@@ -98,7 +98,6 @@ describe("fetchProductData", () => {
                 },
               }),
             };
-
           case FetchProductAttributesDataDocument:
             return {
               toPromise: vi.fn().mockResolvedValueOnce({
@@ -122,7 +121,6 @@ describe("fetchProductData", () => {
                 },
               }),
             };
-
           case FetchRelatedProductsDataDocument:
             return {
               toPromise: vi.fn().mockResolvedValueOnce({
@@ -136,7 +134,6 @@ describe("fetchProductData", () => {
                 },
               }),
             };
-
           default:
             return { toPromise: vi.fn().mockResolvedValue({ data: {} }) };
         }
@@ -150,7 +147,7 @@ describe("fetchProductData", () => {
       imageSize: 100,
     });
 
-    expect(variants).toStrictEqual([
+    expect(variants).toEqual([
       {
         attributes: [
           {

@@ -503,7 +503,7 @@ describe("AvataxOrderConfirmedResponseTransformer", () => {
     const transformer = new AvataxOrderConfirmedResponseTransformer();
     const result = transformer.transform(MOCKED_TRANSACTION);
 
-    expect(result).toStrictEqual({
+    expect(result).toEqual({
       id: "8fc875ce-a929-4556-9f30-0165b1597d9f",
     });
   });

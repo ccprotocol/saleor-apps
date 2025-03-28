@@ -29,11 +29,7 @@ export const fetchShopData = async ({ client, channel }: FetchShopDataArgs) => {
     throw new Error("Shop details query returned no data");
   }
 
-  logger.debug("Shop details fetched successfully", {
-    shopDetails: {
-      name: shopDetails.name,
-    },
-  });
+  logger.debug("Shop details fetched successfully", { shopDetails });
 
   return {
     shopName: shopDetails?.name,

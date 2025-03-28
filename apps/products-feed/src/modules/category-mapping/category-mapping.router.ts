@@ -46,7 +46,9 @@ export const categoryMappingRouter = router({
         })
         .toPromise();
 
-      logger.debug("Updated category mapping");
+      logger.debug("Updated category mapping", {
+        input,
+      });
 
       if (error) {
         logger.error(`Error during the GraphqlAPI call: ${error.message}`);
@@ -58,7 +60,6 @@ export const categoryMappingRouter = router({
       }
 
       logger.info("Category mapping updated");
-
       return;
     }),
 });

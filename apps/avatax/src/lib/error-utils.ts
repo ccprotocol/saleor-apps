@@ -53,7 +53,6 @@ export class SubscriptionPayloadErrorChecker {
             error: graphQLError,
             subscription,
           });
-
           return;
         }
 

@@ -1,5 +1,9 @@
 {
-  "$schema": "https://turbo.build/schema.v2.json",
   "extends": ["//"],
-  "tasks": {}
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "build": {
+      "env": ["VERCEL_URL", "PORT"]
+    }
+  }
 }

@@ -15,7 +15,7 @@ describe("ChannelConfigurationMerger", () => {
 
     const result = configurationMerger.merge(channels, [channelConfig]);
 
-    expect(result).toStrictEqual([
+    expect(result).toEqual([
       {
         id: expect.any(String),
         config: {
@@ -36,7 +36,7 @@ describe("ChannelConfigurationMerger", () => {
 
     const result = configurationMerger.merge(channels, [channelConfig]);
 
-    expect(result).toStrictEqual([
+    expect(result).toEqual([
       {
         id: expect.any(String),
         config: {

@@ -50,6 +50,7 @@ describe("DynamoAPLRepository", () => {
 
     expect(result._unsafeUnwrap()).toStrictEqual({
       appId: "appId",
+      domain: undefined,
       jwks: undefined,
       saleorApiUrl: "saleorApiUrl",
       token: "appToken",
@@ -169,12 +170,14 @@ describe("DynamoAPLRepository", () => {
     expect(result._unsafeUnwrap()).toStrictEqual([
       {
         appId: "appId",
+        domain: undefined,
         jwks: undefined,
         saleorApiUrl: "saleorApiUrl",
         token: "appToken",
       },
       {
         appId: "newAppId",
+        domain: undefined,
         jwks: undefined,
         saleorApiUrl: "additionalSaleorApiUrl",
         token: "newAppToken",

@@ -1,4 +1,4 @@
-import { captureException } from "@sentry/nextjs";
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 
 import { BaseError } from "../../error";
@@ -38,7 +38,7 @@ export class AvataxErrorsParser {
     ),
   });
 
-  parse(err: unknown, injectedErrorCapture = captureException) {
+  parse(err: unknown, injectedErrorCapture = Sentry.captureException) {
     const parsedError = AvataxErrorsParser.schema.safeParse(err);
 
     if (!parsedError.success) {
@@ -58,15 +58,12 @@ export class AvataxErrorsParser {
       case "InvalidAddress": {
         return AvataxInvalidAddressError.normalize(parsedError);
       }
-
       case "GetTaxError": {
         return AvataxGetTaxError.normalize(parsedError);
       }
-
       case "AuthenticationException": {
         return AvataxInvalidCredentialsError.normalize(parsedError);
       }
-
       case "StringLengthError": {
         return new AvataxStringLengthError(parsedError.data.code, {
           props: {
@@ -74,7 +71,6 @@ export class AvataxErrorsParser {
           },
         });
       }
-
       case "EntityNotFoundError": {
         return new AvataxEntityNotFoundError(parsedError.data.code, {
           props: {
@@ -82,7 +78,6 @@ export class AvataxErrorsParser {
           },
         });
       }
-
       case "TransactionAlreadyCancelled": {
         return new AvataxTransactionAlreadyCancelledError(parsedError.data.code, {
           props: {
@@ -90,7 +85,6 @@ export class AvataxErrorsParser {
           },
         });
       }
-
       case "PermissionRequired": {
         return new AvataxForbiddenAccessError(parsedError.data.code, {
           props: {
@@ -98,10 +92,8 @@ export class AvataxErrorsParser {
           },
         });
       }
-
       default: {
         assertUnreachableWithoutThrow(parsedError.data.code);
-
         return normalizeAvaTaxError(err);
       }
     }

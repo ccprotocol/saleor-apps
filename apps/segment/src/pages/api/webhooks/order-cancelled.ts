@@ -1,4 +1,4 @@
-import { NextJsWebhookHandler } from "@saleor/app-sdk/handlers/next";
+import { NextWebhookApiHandler } from "@saleor/app-sdk/handlers/next";
 import { wrapWithLoggerContext } from "@saleor/apps-logger/node";
 import { ObservabilityAttributes } from "@saleor/apps-otel/src/observability-attributes";
 import { withSpanAttributes } from "@saleor/apps-otel/src/with-span-attributes";
@@ -26,7 +26,7 @@ const configManager = DynamoAppConfigManager.create(configRepository);
 const segmentEventTrackerFactory = new SegmentEventTrackerFactory();
 const useCase = new TrackEventUseCase({ segmentEventTrackerFactory });
 
-const handler: NextJsWebhookHandler<OrderUpdatedSubscriptionPayloadFragment> = async (
+const handler: NextWebhookApiHandler<OrderUpdatedSubscriptionPayloadFragment> = async (
   req,
   res,
   context,
@@ -49,7 +49,6 @@ const handler: NextJsWebhookHandler<OrderUpdatedSubscriptionPayloadFragment> = a
 
     if (!payload.order) {
       logger.info("Payload does not contain order data. Skipping.");
-
       return res
         .status(200)
         .json({ message: "Payload does not contain order data. It will be skipped by app" });

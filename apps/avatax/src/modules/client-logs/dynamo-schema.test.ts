@@ -52,7 +52,7 @@ describe("DynamoDB Toolbox Entity Tests", () => {
         date: mockDate.toISOString(),
       });
 
-      expect(parseResult.item).toStrictEqual({
+      expect(parseResult.item).toEqual({
         // generated fields
         SK: "12345#mocked-ulid",
         ulid: "mocked-ulid",
@@ -91,7 +91,7 @@ describe("DynamoDB Toolbox Entity Tests", () => {
         date: mockDate.toISOString(),
       });
 
-      expect(item.item).toStrictEqual({
+      expect(item.item).toEqual({
         // generated fields
         SK: "2023-01-01T00:00:00.000Z#mocked-ulid",
         ulid: "mocked-ulid",

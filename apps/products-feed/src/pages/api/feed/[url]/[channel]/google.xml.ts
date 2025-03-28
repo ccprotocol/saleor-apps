@@ -59,7 +59,6 @@ export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const fieldErrors = error.flatten().fieldErrors;
 
     logger.warn("Invalid request params", { error: fieldErrors });
-
     return res.status(400).json({ error: fieldErrors });
   }
 
@@ -68,7 +67,6 @@ export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (!authData) {
     logger.warn(`The app has not been configured with the ${url}`);
-
     return res.status(400).json({ error: "The given instance has not been registered" });
   }
 
@@ -164,7 +162,6 @@ export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           bucketName: bucketConfiguration!.bucketName,
           fileName,
         });
-
         return undefined;
       });
 
@@ -210,7 +207,6 @@ export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     });
   } catch (error) {
     logger.error("Error during the product data fetch", { error: error });
-
     return res.status(400).end();
   }
 
@@ -237,7 +233,6 @@ export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     res.setHeader("Cache-Control", `s-maxage=${FEED_CACHE_MAX_AGE}`);
     res.write(xmlContent);
     res.end();
-
     return;
   }
 
@@ -274,7 +269,6 @@ export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     } catch (error) {
       logger.error("Could not upload the feed to S3", { error: error });
       span.setStatus({ code: SpanStatusCode.ERROR });
-
       return res.status(500).json({ error: "Could not upload the feed to S3" });
     } finally {
       span.end();

@@ -21,7 +21,6 @@ export class MemoryAPLRepository implements APLRepository {
     authData: AuthData;
   }): Promise<Result<void, InstanceType<typeof BaseError>>> {
     this.entries[args.authData.saleorApiUrl] = args.authData;
-
     return ok(undefined);
   }
 
@@ -30,7 +29,6 @@ export class MemoryAPLRepository implements APLRepository {
   }): Promise<Result<void, InstanceType<typeof BaseError>>> {
     if (this.entries[args.saleorApiUrl]) {
       delete this.entries[args.saleorApiUrl];
-
       return ok(undefined);
     }
 

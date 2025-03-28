@@ -41,7 +41,6 @@ const BulkSyncPage: NextPage = () => {
 
   if ((providerFetched && !provider) || (connectionFetched && !connection)) {
     push("/404");
-
     return null;
   }
 

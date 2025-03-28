@@ -33,19 +33,16 @@ export const throwTrpcErrorFromConfigurationServiceError = (
           code: "NOT_FOUND",
           message: "Configuration not found.",
         });
-
       case SmtpConfigurationService.EventConfigNotFoundError:
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Event configuration not found.",
         });
-
       case SmtpConfigurationService.CantFetchConfigError:
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Can't fetch configuration.",
         });
-
       case SmtpConfigurationService.WrongSaleorVersionError:
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -65,7 +62,6 @@ export const smtpConfigurationRouter = router({
     const logger = createLogger("smtpConfigurationRouter", { saleorApiUrl: ctx.saleorApiUrl });
 
     logger.debug("smtpConfigurationRouter.fetch called");
-
     return ctx.smtpConfigurationService.getConfigurationRoot();
   }),
   getConfiguration: protectedWithConfigurationServices
@@ -163,7 +159,6 @@ export const smtpConfigurationRouter = router({
           renderedSubject = compiledSubjectTemplate(payload);
         } catch (e) {
           logger.error("Error during compile subject template", { error: e });
-
           return {
             renderedSubject: "",
             renderedEmailBody: "",
@@ -181,7 +176,6 @@ export const smtpConfigurationRouter = router({
           templatedEmail = compiledSubjectTemplate(payload);
         } catch (e) {
           logger.error("Error during compile template", { error: e });
-
           return {
             renderedSubject: "",
             renderedEmailBody: "",

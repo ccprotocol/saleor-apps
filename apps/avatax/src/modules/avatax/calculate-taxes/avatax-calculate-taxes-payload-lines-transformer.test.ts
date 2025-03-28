@@ -21,14 +21,14 @@ describe("AvataxCalculateTaxesPayloadLinesTransformer", () => {
       const taxBaseMock = mockGenerator.generateTaxBase();
       const matchesMock = mockGenerator.generateTaxCodeMatches();
 
-      const lines = transformer.transform({
-        taxBase: taxBaseMock,
-        config: avataxConfigMock,
-        matches: matchesMock,
+      const lines = transformer.transformWithDiscountType(
+        taxBaseMock,
+        avataxConfigMock,
+        matchesMock,
         discountsStrategy,
-      });
+      );
 
-      expect(lines).toStrictEqual([
+      expect(lines).toEqual([
         {
           amount: 60,
           quantity: 3,
@@ -69,14 +69,14 @@ describe("AvataxCalculateTaxesPayloadLinesTransformer", () => {
       const matchesMock = mockGenerator.generateTaxCodeMatches();
       const taxBaseMock = mockGenerator.generateTaxBase({ shippingPrice: { amount: 0 } });
 
-      const lines = transformer.transform({
-        taxBase: taxBaseMock,
-        config: avataxConfigMock,
-        matches: matchesMock,
+      const lines = transformer.transformWithDiscountType(
+        taxBaseMock,
+        avataxConfigMock,
+        matchesMock,
         discountsStrategy,
-      });
+      );
 
-      expect(lines).toStrictEqual([
+      expect(lines).toEqual([
         {
           amount: 60,
           quantity: 3,
@@ -108,14 +108,14 @@ describe("AvataxCalculateTaxesPayloadLinesTransformer", () => {
       const avataxConfigMock = mockGenerator.generateAvataxConfig();
       const taxBaseMock = mockGenerator.generateTaxBase();
       const matchesMock = mockGenerator.generateTaxCodeMatches();
-      const lines = transformer.transform({
-        taxBase: taxBaseMock,
-        config: avataxConfigMock,
-        matches: matchesMock,
+      const lines = transformer.transformWithDiscountType(
+        taxBaseMock,
+        avataxConfigMock,
+        matchesMock,
         discountsStrategy,
-      });
+      );
 
-      expect(lines).toStrictEqual([
+      expect(lines).toEqual([
         {
           amount: 60,
           quantity: 3,
@@ -175,14 +175,14 @@ describe("AvataxCalculateTaxesPayloadLinesTransformer", () => {
         },
       ];
 
-      const lines = transformer.transform({
-        taxBase: taxBaseMock,
-        config: avataxConfigMock,
-        matches: matchesMock,
+      const lines = transformer.transformWithDiscountType(
+        taxBaseMock,
+        avataxConfigMock,
+        matchesMock,
         discountsStrategy,
-      });
+      );
 
-      expect(lines).toStrictEqual([
+      expect(lines).toEqual([
         {
           amount: 60,
           quantity: 3,
@@ -244,14 +244,14 @@ describe("AvataxCalculateTaxesPayloadLinesTransformer", () => {
           },
         ];
 
-        const lines = transformer.transform({
-          taxBase: taxBaseMock,
-          config: avataxConfigMock,
-          matches: matchesMock,
+        const lines = transformer.transformWithDiscountType(
+          taxBaseMock,
+          avataxConfigMock,
+          matchesMock,
           discountsStrategy,
-        });
+        );
 
-        expect(lines).toStrictEqual([
+        expect(lines).toEqual([
           {
             amount: 60,
             quantity: 3,
@@ -325,14 +325,14 @@ describe("AvataxCalculateTaxesPayloadLinesTransformer", () => {
           },
         ];
 
-        const lines = transformer.transform({
-          taxBase: taxBaseMock,
-          config: avataxConfigMock,
-          matches: matchesMock,
+        const lines = transformer.transformWithDiscountType(
+          taxBaseMock,
+          avataxConfigMock,
+          matchesMock,
           discountsStrategy,
-        });
+        );
 
-        expect(lines).toStrictEqual([
+        expect(lines).toEqual([
           {
             amount: 60,
             quantity: 3,
@@ -387,14 +387,14 @@ describe("AvataxCalculateTaxesPayloadLinesTransformer", () => {
           },
         ];
 
-        const lines = transformer.transform({
-          taxBase: taxBaseMock,
-          config: avataxConfigMock,
-          matches: matchesMock,
+        const lines = transformer.transformWithDiscountType(
+          taxBaseMock,
+          avataxConfigMock,
+          matchesMock,
           discountsStrategy,
-        });
+        );
 
-        expect(lines).toStrictEqual([
+        expect(lines).toEqual([
           {
             amount: 60,
             quantity: 3,
@@ -453,14 +453,14 @@ describe("AvataxCalculateTaxesPayloadLinesTransformer", () => {
           },
         ];
 
-        const lines = transformer.transform({
-          taxBase: taxBaseMock,
-          config: avataxConfigMock,
-          matches: matchesMock,
+        const lines = transformer.transformWithDiscountType(
+          taxBaseMock,
+          avataxConfigMock,
+          matchesMock,
           discountsStrategy,
-        });
+        );
 
-        expect(lines).toStrictEqual([
+        expect(lines).toEqual([
           {
             amount: 60,
             quantity: 3,
@@ -515,14 +515,14 @@ describe("AvataxCalculateTaxesPayloadLinesTransformer", () => {
           },
         ];
 
-        const lines = transformer.transform({
-          taxBase: taxBaseMock,
-          config: avataxConfigMock,
-          matches: matchesMock,
+        const lines = transformer.transformWithDiscountType(
+          taxBaseMock,
+          avataxConfigMock,
+          matchesMock,
           discountsStrategy,
-        });
+        );
 
-        expect(lines).toStrictEqual([
+        expect(lines).toEqual([
           {
             amount: 60,
             quantity: 3,
@@ -582,14 +582,14 @@ describe("AvataxCalculateTaxesPayloadLinesTransformer", () => {
           },
         ];
 
-        const lines = transformer.transform({
-          taxBase: taxBaseMock,
-          config: avataxConfigMock,
-          matches: matchesMock,
+        const lines = transformer.transformWithDiscountType(
+          taxBaseMock,
+          avataxConfigMock,
+          matchesMock,
           discountsStrategy,
-        });
+        );
 
-        expect(lines).toStrictEqual([
+        expect(lines).toEqual([
           {
             amount: 60,
             quantity: 3,

@@ -31,7 +31,6 @@ export const getEventFormStatus = ({
         requiredSaleorVersion: isUnsupported ? ">=3.14" : undefined,
       };
     }
-
     case "GIFT_CARD_SENT": {
       const isUnsupported = !featureFlags?.giftCardSentEvent;
 
@@ -45,7 +44,6 @@ export const getEventFormStatus = ({
         requiredSaleorVersion: isUnsupported ? ">=3.13" : undefined,
       };
     }
-
     default:
       return {
         isDisabled: false,

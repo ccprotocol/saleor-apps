@@ -66,7 +66,6 @@ export class WebhookManagementService {
   // Returns list of webhooks registered for the App in the Saleor instance
   public async getWebhooks() {
     logger.debug("Fetching webhooks");
-
     return await fetchAppWebhooks({ client: this.client });
   }
 

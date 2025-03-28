@@ -5,20 +5,14 @@ import { ILogObj, Logger } from "tslog";
 const loggerLevelToSentryLevel = (level: string): SeverityLevel => {
   switch (level) {
     case "fatal":
-
     case "error":
       return "error";
-
     case "warn":
       return "warning";
-
     case "silly":
-
     case "debug":
-
     case "trace":
       return "debug";
-
     case "info":
       return "info";
   }
@@ -29,19 +23,13 @@ const loggerLevelToSentryLevel = (level: string): SeverityLevel => {
 const levelToBreadcrumbType = (level: string) => {
   switch (level) {
     case "error":
-
     case "fatal":
       return "error";
-
     case "debug":
-
     case "trace":
-
     case "silly":
       return "debug";
-
     case "info":
-
     default:
       return "default";
   }

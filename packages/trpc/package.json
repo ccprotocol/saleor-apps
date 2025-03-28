@@ -1,35 +1,30 @@
 {
   "name": "@saleor/trpc",
-  "version": "4.0.3",
+  "version": "4.0.0",
   "type": "module",
   "main": "index.ts",
   "scripts": {
-    "check-types": "tsc",
+    "check-types": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."
   },
   "devDependencies": {
     "@saleor/app-sdk": "link:../../node_modules/@saleor/app-sdk",
-    "@saleor/apps-shared": "workspace:*",
-    "@saleor/eslint-config-apps": "workspace:*",
-    "@saleor/typescript-config-apps": "workspace:*",
-    "@trpc/client": "catalog:",
-    "@trpc/next": "catalog:",
-    "@trpc/react-query": "catalog:",
-    "@trpc/server": "catalog:",
-    "@types/node": "22.13.10",
-    "next": "catalog:",
-    "typescript": "5.8.2"
+    "eslint": "../../node_modules/eslint",
+    "eslint-config-saleor": "workspace:*",
+    "next": "14.2.3",
+    "typescript": "5.5.4"
   },
   "peerDependencies": {
-    "@saleor/app-sdk": "catalog:",
-    "@trpc/client": "catalog:",
-    "@trpc/next": "catalog:",
-    "@trpc/react-query": "catalog:",
-    "@trpc/server": "catalog:",
-    "eslint": "catalog:",
-    "next": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:"
+    "@saleor/app-sdk": "0.41.1",
+    "@saleor/apps-shared": "workspace:*",
+    "@tanstack/react-query": "4.29.19",
+    "@trpc/client": "10.34.0",
+    "@trpc/next": "10.34.0",
+    "@trpc/react-query": "10.34.0",
+    "@trpc/server": "10.34.0",
+    "next": "14.2.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   }
 }

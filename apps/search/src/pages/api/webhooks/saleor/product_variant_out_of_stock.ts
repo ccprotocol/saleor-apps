@@ -1,4 +1,4 @@
-import { NextJsWebhookHandler } from "@saleor/app-sdk/handlers/next";
+import { NextWebhookApiHandler } from "@saleor/app-sdk/handlers/next";
 import { wrapWithLoggerContext } from "@saleor/apps-logger/node";
 import { withSpanAttributes } from "@saleor/apps-otel/src/with-span-attributes";
 
@@ -16,7 +16,7 @@ export const config = {
 
 const logger = createLogger("webhookProductVariantOutOfStockWebhookHandler");
 
-export const handler: NextJsWebhookHandler<ProductVariantOutOfStock> = async (
+export const handler: NextWebhookApiHandler<ProductVariantOutOfStock> = async (
   req,
   res,
   context,
@@ -31,7 +31,6 @@ export const handler: NextJsWebhookHandler<ProductVariantOutOfStock> = async (
 
   if (!productVariant) {
     logger.error("Webhook did not received expected product data in the payload.");
-
     return res.status(200).end();
   }
 
@@ -42,7 +41,6 @@ export const handler: NextJsWebhookHandler<ProductVariantOutOfStock> = async (
       await algoliaClient.updateProductVariant(productVariant);
 
       res.status(200).end();
-
       return;
     } catch (e) {
       logger.error(

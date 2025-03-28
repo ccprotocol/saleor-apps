@@ -163,7 +163,6 @@ export const avataxConnectionRouter = router({
       return result.match(
         (value) => {
           logger.debug(`AvaTax address was successfully validated`);
-
           return value;
         },
         (error) => {
@@ -189,7 +188,6 @@ export const avataxConnectionRouter = router({
       return result.match(
         (value) => {
           logger.debug(`AvaTax address was successfully validated`);
-
           return value;
         },
         (error) => {
@@ -245,7 +243,6 @@ export const avataxConnectionRouter = router({
       return result.match(
         (value) => {
           logger.debug(`AvaTax client was successfully validated`);
-
           return value;
         },
         (error) => {

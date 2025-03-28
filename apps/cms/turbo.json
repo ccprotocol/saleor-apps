@@ -1,19 +1,31 @@
 {
   "extends": ["//"],
   "$schema": "https://turbo.build/schema.json",
-  "tasks": {
-    "deploy": {
+  "pipeline": {
+    "build": {
       "env": [
-        "ALLOWED_DOMAIN_PATTERN",
         "APL",
-        "APP_API_BASE_URL",
-        "APP_IFRAME_BASE_URL",
-        "NEXT_PUBLIC_SENTRY_DSN",
+        "APP_DEBUG",
+        "NODE_ENV",
+        "SECRET_KEY",
+        "ALLOWED_DOMAIN_PATTERN",
         "REST_APL_ENDPOINT",
         "REST_APL_TOKEN",
-        "SECRET_KEY",
+        "NEXT_PUBLIC_VERCEL_ENV",
+        "VERCEL_URL",
+        "PORT",
+        "APP_IFRAME_BASE_URL",
+        "OTEL_ENABLED",
+        "VERCEL_GIT_COMMIT_SHA",
+        "APP_LOG_LEVEL",
+        "ENV",
+        "OTEL_SERVICE_NAME",
+        "APP_API_BASE_URL",
         "SENTRY_AUTH_TOKEN",
-        "SENTRY_PROJECT"
+        "SENTRY_PROJECT",
+        "SENTRY_ORG",
+        "NEXT_PUBLIC_SENTRY_DSN",
+        "OTEL_ACCESS_TOKEN"
       ]
     }
   }

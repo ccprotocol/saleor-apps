@@ -62,7 +62,6 @@ export class WebhookUpdater {
 
       if (dryRun) {
         logger.info("Dry run mode, changes will not be executed. Exiting.");
-
         return;
       }
 

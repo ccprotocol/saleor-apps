@@ -36,7 +36,6 @@ const renderList = (data: ListData) => {
   if (data.style === "ordered") {
     return data.items.map((item, index) => `${index + 1}. ${item}`).join("\n");
   }
-
   return data.items.map((item) => `- ${item}`).join("\n");
 };
 
@@ -48,16 +47,12 @@ const renderBlock = (block: esjBlock) => {
   switch (block.type) {
     case "header":
       return renderHeader(block.data as HeaderData);
-
     case "paragraph":
       return renderParagraph(block.data as ParagraphData);
-
     case "list":
       return renderList(block.data as ListData);
-
     case "delimiter":
       return renderDelimiter();
-
     default:
       return "";
   }

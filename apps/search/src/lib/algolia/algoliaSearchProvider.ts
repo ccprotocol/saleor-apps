@@ -47,7 +47,6 @@ export class AlgoliaSearchProvider implements SearchProvider {
 
   private async saveGroupedByIndex(groupedByIndex: GroupedByIndex) {
     logger.debug("saveGroupedByIndex called");
-
     return Promise.all(
       Object.entries(groupedByIndex).map(([indexName, objects]) => {
         const index = this.#algolia.initIndex(indexName);
@@ -129,7 +128,6 @@ export class AlgoliaSearchProvider implements SearchProvider {
 
     if (!product.variants) {
       logger.debug("Product has no variants - abort");
-
       return;
     }
     await Promise.all(product.variants.map((variant) => this.updateProductVariant(variant)));
@@ -149,7 +147,6 @@ export class AlgoliaSearchProvider implements SearchProvider {
 
   async createProductVariant(productVariant: ProductVariantWebhookPayloadFragment) {
     logger.debug(`createProductVariant called`);
-
     return this.updateProductVariant(productVariant);
   }
 
@@ -213,7 +210,6 @@ const groupVariantByIndexName = (
   logger.debug("Grouping variants per index name");
   if (!productVariant.channelListings) {
     logger.debug("Product variant has no channel listings - abort");
-
     return {};
   }
 
@@ -229,7 +225,6 @@ const groupVariantByIndexName = (
           var: channelListing,
           prod: productChannelListing,
         });
-
         return false;
       }
 
@@ -253,7 +248,6 @@ const groupVariantByIndexName = (
     .reduce((acc, { object, indexName }) => {
       acc[indexName] = acc[indexName] ?? [];
       acc[indexName].push(object);
-
       return acc;
     }, {} as GroupedByIndex);
 

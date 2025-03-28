@@ -34,7 +34,7 @@ describe("FieldsMapper", () => {
       },
     });
 
-    expect(mappedFields).toStrictEqual({
+    expect(mappedFields).toEqual({
       "variant-name": "43",
       "product-id": "aaa-bbb-123",
       "product-name": "Shoes",

@@ -49,7 +49,6 @@ fragment TaxBase on TaxableObject {
   currency
   channel {
     slug
-    id
   }
   discounts {
     ...TaxDiscount

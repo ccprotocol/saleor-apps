@@ -71,7 +71,6 @@ export class StrapiClient {
 
     if (!strapiProducts) {
       this.logger.info("No product found in Strapi, skipping deletion");
-
       return;
     }
 
@@ -126,7 +125,6 @@ export class StrapiClient {
 
       if (!strapiProducts) {
         this.logger.info("No product found in Strapi, skipping update");
-
         return;
       }
 
@@ -172,7 +170,6 @@ export class StrapiClient {
       );
     } else {
       this.logger.info("No products found, will try to upload");
-
       return this.uploadProduct({ configuration, variant });
     }
   }

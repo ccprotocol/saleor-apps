@@ -2,7 +2,6 @@ import { EncryptedMetadataManager, MetadataEntry } from "@saleor/app-sdk/setting
 import { Client, gql } from "urql";
 
 import {
-  DeleteAppMetadataDocument,
   FetchAppDetailsDocument,
   FetchAppDetailsQuery,
   UpdateAppMetadataDocument,
@@ -28,19 +27,6 @@ gql`
       privateMetadata {
         key
         value
-      }
-    }
-  }
-`;
-
-gql`
-  mutation DeleteAppMetadata($id: ID!, $keys: [String!]!) {
-    deletePrivateMetadata(id: $id, keys: $keys) {
-      item {
-        privateMetadata {
-          key
-          value
-        }
       }
     }
   }
@@ -78,25 +64,6 @@ export async function mutateMetadata(client: Client, metadata: MetadataEntry[], 
   );
 }
 
-async function deleteMetadata(
-  client: Pick<Client, "mutation">,
-  keys: string[],
-  appId: string,
-): Promise<void> {
-  const { error } = await client
-    .mutation(DeleteAppMetadataDocument, {
-      id: appId,
-      keys,
-    })
-    .toPromise();
-
-  if (error) {
-    throw new Error("Error during metadata deletion", {
-      cause: error,
-    });
-  }
-}
-
 export const createSettingsManager = (client: Client, appId: string) => {
   /*
    * EncryptedMetadataManager gives you interface to manipulate metadata and cache values in memory.
@@ -108,6 +75,5 @@ export const createSettingsManager = (client: Client, appId: string) => {
     encryptionKey: process.env.SECRET_KEY!,
     fetchMetadata: () => fetchAllMetadata(client),
     mutateMetadata: (metadata) => mutateMetadata(client, metadata, appId),
-    deleteMetadata: (keys) => deleteMetadata(client, keys, appId),
   });
 };

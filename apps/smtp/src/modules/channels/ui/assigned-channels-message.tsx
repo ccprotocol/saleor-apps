@@ -34,7 +34,6 @@ export const AssignedChannelsMessage = ({
         </Text>
       );
     }
-
     return (
       <Text>
         Configuration will be used with channels:{" "}
@@ -55,7 +54,6 @@ export const AssignedChannelsMessage = ({
       </Text>
     );
   }
-
   return (
     <Text>
       Configuration will be used with channels:{" "}

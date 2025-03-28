@@ -13,7 +13,7 @@ describe("isAvailableInChannel", function () {
           override: false,
         },
       }),
-    ).toStrictEqual(true);
+    ).toEqual(true);
   });
 
   describe("Restrict mode", () => {
@@ -27,7 +27,7 @@ describe("isAvailableInChannel", function () {
             override: true,
           },
         }),
-      ).toStrictEqual(false);
+      ).toEqual(false);
     });
     it("Fails if tested channel is not on the list", () => {
       expect(
@@ -39,7 +39,7 @@ describe("isAvailableInChannel", function () {
             override: true,
           },
         }),
-      ).toStrictEqual(false);
+      ).toEqual(false);
     });
     it("Passes if tested channel is on the list", () => {
       expect(
@@ -51,7 +51,7 @@ describe("isAvailableInChannel", function () {
             override: true,
           },
         }),
-      ).toStrictEqual(true);
+      ).toEqual(true);
     });
   });
 
@@ -66,7 +66,7 @@ describe("isAvailableInChannel", function () {
             override: true,
           },
         }),
-      ).toStrictEqual(true);
+      ).toEqual(true);
     });
     it("Passes if other channels are specified", () => {
       expect(
@@ -78,7 +78,7 @@ describe("isAvailableInChannel", function () {
             override: true,
           },
         }),
-      ).toStrictEqual(true);
+      ).toEqual(true);
     });
     it("Fails if channel is on the list", () => {
       expect(
@@ -90,7 +90,7 @@ describe("isAvailableInChannel", function () {
             override: true,
           },
         }),
-      ).toStrictEqual(false);
+      ).toEqual(false);
     });
   });
 });

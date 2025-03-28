@@ -17,7 +17,6 @@ export class AvataxOrderConfirmedTaxCodeMatcher {
         taxClassId,
         taxCode: possibleMatch.data.avataxTaxCode,
       });
-
       return possibleMatch.data.avataxTaxCode;
     }
 

@@ -111,7 +111,6 @@ export class CrudSettingsManager {
 
         return { id, ...rest, ...input };
       }
-
       return item;
     });
 

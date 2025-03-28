@@ -5,7 +5,4 @@ export const ObservabilityAttributes = {
   TRANSACTION_ID: "transactionId",
   ORDER_ID: "orderId",
   CHECKOUT_ID: "checkoutId",
-  COMMIT_SHA: "git.commit.sha",
-  REPOSITORY_URL: "git.repository_url",
-  VERCEL_ENV: "vercel.env",
 } as const;

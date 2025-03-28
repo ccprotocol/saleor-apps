@@ -17,7 +17,6 @@ export default wrapWithLoggerContext(
       onError: ({ path, error }) => {
         if (error.code === "INTERNAL_SERVER_ERROR") {
           logger.error(`${path} returned error:`, { error: error });
-
           return;
         }
         logger.debug(`${path} returned error:`, { error: error });

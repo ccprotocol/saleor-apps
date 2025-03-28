@@ -10,7 +10,7 @@ describe("AvataxObfuscator", () => {
   it("obfuscated avatax config", () => {
     const obfuscatedConfig = obfuscator.obfuscateAvataxConfig(mockAvataxConfig);
 
-    expect(obfuscatedConfig).toStrictEqual({
+    expect(obfuscatedConfig).toEqual({
       ...mockAvataxConfig,
       credentials: {
         password: "****word",
@@ -24,7 +24,7 @@ describe("AvataxObfuscator", () => {
 
     const filteredConfig = obfuscator.filterOutObfuscated(obfuscatedConfig);
 
-    expect(filteredConfig).toStrictEqual(rest);
+    expect(filteredConfig).toEqual(rest);
   });
   it("filters out username when is obfuscated", () => {
     const filteredConfig = obfuscator.filterOutObfuscated({
@@ -35,7 +35,7 @@ describe("AvataxObfuscator", () => {
       },
     });
 
-    expect(filteredConfig).toStrictEqual({
+    expect(filteredConfig).toEqual({
       ...mockAvataxConfig,
       credentials: {
         password: "password",
@@ -52,7 +52,7 @@ describe("AvataxObfuscator", () => {
       },
     });
 
-    expect(filteredConfig).toStrictEqual({
+    expect(filteredConfig).toEqual({
       ...mockAvataxConfig,
       credentials: {
         username: "username",

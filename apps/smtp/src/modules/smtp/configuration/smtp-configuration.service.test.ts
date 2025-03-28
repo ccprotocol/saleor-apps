@@ -10,6 +10,10 @@ import { SmtpMetadataManager } from "./smtp-metadata-manager";
 
 const mockSaleorApiUrl = "https://demo.saleor.io/graphql/";
 
+const emptyConfigRoot: SmtpConfig = {
+  configurations: [],
+};
+
 const validConfig: SmtpConfig = {
   configurations: [
     {
@@ -234,7 +238,7 @@ describe("SmtpConfigurationService", function () {
 
       const configuration = await service.getConfigurationRoot();
 
-      expect(configuration._unsafeUnwrap()).toStrictEqual(validConfig);
+      expect(configuration._unsafeUnwrap()).toEqual(validConfig);
       expect(getConfigMock).toBeCalledTimes(1);
 
       // Second call should not trigger API call
@@ -243,10 +247,6 @@ describe("SmtpConfigurationService", function () {
     });
 
     it("The API should not be called when initial data were provided", async () => {
-      const emptyConfigRoot: SmtpConfig = {
-        configurations: [],
-      };
-
       const configurator = new SmtpMetadataManager(
         null as unknown as SettingsManager,
         mockSaleorApiUrl,
@@ -265,17 +265,13 @@ describe("SmtpConfigurationService", function () {
         initialData: { ...validConfig },
       });
 
-      expect((await service.getConfigurationRoot())._unsafeUnwrap()).toStrictEqual(validConfig);
+      expect((await service.getConfigurationRoot())._unsafeUnwrap()).toEqual(validConfig);
 
       expect(getConfigMock).toBeCalledTimes(0);
     });
   });
   describe("setConfigurationRoot", () => {
     it("The API should be called and value cached, when saving the configuration", async () => {
-      const emptyConfigRoot: SmtpConfig = {
-        configurations: [],
-      };
-
       const configurator = new SmtpMetadataManager(
         null as unknown as SettingsManager,
         mockSaleorApiUrl,
@@ -308,10 +304,6 @@ describe("SmtpConfigurationService", function () {
     });
 
     it("Operation should be rejected, when attempting to save event not available according to feature flag", async () => {
-      const emptyConfigRoot: SmtpConfig = {
-        configurations: [],
-      };
-
       const configurator = new SmtpMetadataManager(
         null as unknown as SettingsManager,
         mockSaleorApiUrl,
@@ -356,7 +348,7 @@ describe("SmtpConfigurationService", function () {
 
       expect(
         (await service.getConfiguration({ id: validConfig.configurations[0].id }))._unsafeUnwrap(),
-      ).toStrictEqual(validConfig.configurations[0]);
+      ).toEqual(validConfig.configurations[0]);
     });
 
     it("Throws error when configuration with provided ID does not exist", async () => {
@@ -384,10 +376,6 @@ describe("SmtpConfigurationService", function () {
 
   describe("getConfigurations", () => {
     it("Returns empty list when no configurations", async () => {
-      const initialData: SmtpConfig = {
-        configurations: [],
-      };
-
       const configurator = new SmtpMetadataManager(
         null as unknown as SettingsManager,
         mockSaleorApiUrl,
@@ -399,10 +387,10 @@ describe("SmtpConfigurationService", function () {
           saleorVersion: "3.14.0",
         }),
         metadataManager: configurator,
-        initialData,
+        initialData: emptyConfigRoot,
       });
 
-      expect((await service.getConfigurations())._unsafeUnwrap()).toStrictEqual([]);
+      expect((await service.getConfigurations())._unsafeUnwrap()).toEqual([]);
     });
 
     it("Returns relevant configurations, when filter is passed", async () => {
@@ -421,7 +409,7 @@ describe("SmtpConfigurationService", function () {
       });
 
       // Only the first configuration is active, so only this one should be returned
-      expect((await service.getConfigurations({ active: true }))._unsafeUnwrap()).toStrictEqual([
+      expect((await service.getConfigurations({ active: true }))._unsafeUnwrap()).toEqual([
         validConfig.configurations[0],
       ]);
     });
@@ -429,10 +417,6 @@ describe("SmtpConfigurationService", function () {
 
   describe("createConfiguration", () => {
     it("New configuration should be sent to API, when created", async () => {
-      const emptyConfigRoot: SmtpConfig = {
-        configurations: [],
-      };
-
       const configurator = new SmtpMetadataManager(
         null as unknown as SettingsManager,
         mockSaleorApiUrl,
@@ -460,7 +444,7 @@ describe("SmtpConfigurationService", function () {
         })
       )._unsafeUnwrap();
 
-      expect(newConfiguration.name).toStrictEqual("New configuration");
+      expect(newConfiguration.name).toEqual("New configuration");
       expect(setConfigMock).toBeCalledTimes(1);
     });
   });
@@ -491,7 +475,7 @@ describe("SmtpConfigurationService", function () {
         })
       )._unsafeUnwrap();
 
-      expect(updatedConfiguration.name).toStrictEqual("Updated configuration");
+      expect(updatedConfiguration.name).toEqual("Updated configuration");
       expect(setConfigMock).toBeCalledTimes(1);
 
       const configurationFromCache = (
@@ -501,7 +485,7 @@ describe("SmtpConfigurationService", function () {
       )._unsafeUnwrap();
 
       expect(getConfigMock).toBeCalledTimes(0);
-      expect(configurationFromCache.name).toStrictEqual("Updated configuration");
+      expect(configurationFromCache.name).toEqual("Updated configuration");
     });
 
     it("Error should be thrown, when configuration with given ID does not exist", async () => {
@@ -622,7 +606,7 @@ describe("SmtpConfigurationService", function () {
             eventType: "ORDER_CREATED",
           })
         )._unsafeUnwrap(),
-      ).toStrictEqual(validConfig.configurations[0].events[0]);
+      ).toEqual(validConfig.configurations[0].events[0]);
     });
 
     it("Should throw error, when configuration does not exist", async () => {
@@ -697,7 +681,7 @@ describe("SmtpConfigurationService", function () {
         })
       )._unsafeUnwrap();
 
-      expect(updatedEventConfiguration.subject).toStrictEqual("Updated subject");
+      expect(updatedEventConfiguration.subject).toEqual("Updated subject");
     });
 
     it("Should throw error, when configuration does not exist", async () => {

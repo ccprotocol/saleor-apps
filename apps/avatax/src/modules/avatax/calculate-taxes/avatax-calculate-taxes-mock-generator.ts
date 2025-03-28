@@ -23,7 +23,6 @@ const defaultTaxBase: TaxBase = {
   currency: "USD",
   channel: {
     slug: "default-channel",
-    id: "channel-id",
   },
   discounts: [],
   address: {

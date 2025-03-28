@@ -31,7 +31,6 @@ const getCommitHash = () => {
     return result.toString().trim();
   } catch (e) {
     console.warn("Cannot fetch commit hash", e);
-
     return null;
   }
 };

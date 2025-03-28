@@ -46,7 +46,7 @@ describe("AppConfig", function () {
     it("Constructs configuration with default values, when empty object is passed as initial data", () => {
       const instance = new AppConfig();
 
-      expect(instance.getRootConfig()).toStrictEqual({
+      expect(instance.getRootConfig()).toEqual({
         channelConfig: {},
         s3: null,
         attributeMapping: {
@@ -66,7 +66,7 @@ describe("AppConfig", function () {
     it("Constructs configuration, when valid initial state is passed", () => {
       const instance = new AppConfig(exampleConfiguration);
 
-      expect(instance.getRootConfig()).toStrictEqual(exampleConfiguration);
+      expect(instance.getRootConfig()).toEqual(exampleConfiguration);
     });
 
     it("Fill attribute mapping, image size and title template with default values, when initial data are lacking those fields", () => {
@@ -81,7 +81,7 @@ describe("AppConfig", function () {
 
       const instance = new AppConfig(configurationWithoutMapping as any); // Casting used to prevent TS from reporting an error
 
-      expect(instance.getRootConfig()).toStrictEqual({
+      expect(instance.getRootConfig()).toEqual({
         ...exampleConfiguration,
         attributeMapping: {
           brandAttributeIds: [],
@@ -133,7 +133,7 @@ describe("AppConfig", function () {
 
       const instance2 = AppConfig.parse(serialized);
 
-      expect(instance2.getRootConfig()).toStrictEqual({
+      expect(instance2.getRootConfig()).toEqual({
         s3: {
           region: "region",
           bucketName: "bucket",
@@ -186,7 +186,7 @@ describe("AppConfig", function () {
     });
 
     it("getRootConfig returns root config data", () => {
-      expect(instance.getRootConfig()).toStrictEqual({
+      expect(instance.getRootConfig()).toEqual({
         s3: {
           region: "region",
           bucketName: "bucket",
@@ -216,7 +216,7 @@ describe("AppConfig", function () {
     });
 
     it("getRootConfig returns root config data with shipping label attributes", () => {
-      expect(instance.getRootConfig()).toStrictEqual({
+      expect(instance.getRootConfig()).toEqual({
         s3: {
           region: "region",
           bucketName: "bucket",
@@ -246,7 +246,7 @@ describe("AppConfig", function () {
     });
 
     it("getUrlsForChannel gets data for given channel or undefined if doesn't exist", () => {
-      expect(instance.getUrlsForChannel("test")).toStrictEqual({
+      expect(instance.getUrlsForChannel("test")).toEqual({
         productStorefrontUrl: "https://example.com",
         storefrontUrl: "https://example.com/p/{{ variant.product.slug }}",
       });
@@ -255,7 +255,7 @@ describe("AppConfig", function () {
     });
 
     it("getS3Config gets s3 data", () => {
-      expect(instance.getS3Config()).toStrictEqual({
+      expect(instance.getS3Config()).toEqual({
         region: "region",
         bucketName: "bucket",
         accessKeyId: "access",
@@ -264,7 +264,7 @@ describe("AppConfig", function () {
     });
 
     it("getAttributeMapping gets attribute data", () => {
-      expect(instance.getAttributeMapping()).toStrictEqual({
+      expect(instance.getAttributeMapping()).toEqual({
         brandAttributeIds: [],
         colorAttributeIds: [],
         patternAttributeIds: [],
@@ -287,7 +287,7 @@ describe("AppConfig", function () {
         secretAccessKey: "secret",
       });
 
-      expect(instance.getS3Config()).toStrictEqual({
+      expect(instance.getS3Config()).toEqual({
         region: "region",
         bucketName: "bucket",
         accessKeyId: "access",
@@ -306,7 +306,7 @@ describe("AppConfig", function () {
         storefrontUrl: "https://example.com/p/{{ variant.product.slug }}",
       });
 
-      expect(instance.getUrlsForChannel("test")).toStrictEqual({
+      expect(instance.getUrlsForChannel("test")).toEqual({
         productStorefrontUrl: "https://example.com",
         storefrontUrl: "https://example.com/p/{{ variant.product.slug }}",
       });
@@ -332,7 +332,7 @@ describe("AppConfig", function () {
      * Only way to check if serialization works is to deserialize. Order of serialized fields is not given so string cant be asserted.
      * JSON.parse can be used but its testing implementation details
      */
-    expect(AppConfig.parse(serialized).getS3Config()).toStrictEqual({
+    expect(AppConfig.parse(serialized).getS3Config()).toEqual({
       region: "region",
       bucketName: "bucket",
       accessKeyId: "access",

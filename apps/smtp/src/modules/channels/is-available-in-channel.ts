@@ -23,6 +23,5 @@ export const isAvailableInChannel = ({
   if (channelConfiguration.mode === "restrict") {
     return channelConfiguration.channels.includes(channel);
   }
-
   return !channelConfiguration.channels.includes(channel);
 };

@@ -15,6 +15,5 @@ export const uploadFile = async (args: UploadFileArgs) => {
   if (args.buffer.length > MULTI_PART_SIZE_THRESHOLD) {
     return await UploadMultiPart(args);
   }
-
   return await UploadSinglePart(args);
 };

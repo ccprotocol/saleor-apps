@@ -90,7 +90,6 @@ export const channelProviderConnectionRouter = router({
               cause: "PROVIDER_DOESNT_EXIST",
               message: "Provider doesnt exist",
             });
-
           case "CONNECTION_ALREADY_EXISTS":
             logger.warn("Connection already exists");
             throw new TRPCError({

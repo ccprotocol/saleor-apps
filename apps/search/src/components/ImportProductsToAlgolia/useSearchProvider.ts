@@ -11,7 +11,6 @@ export const useSearchProvider = (algoliaConfiguration?: AlgoliaConfiguration) =
     if (!algoliaConfiguration?.appConfig?.appId || !algoliaConfiguration?.appConfig?.secretKey) {
       return null;
     }
-
     return new AlgoliaSearchProvider({
       appId: algoliaConfiguration.appConfig.appId,
       apiKey: algoliaConfiguration.appConfig.secretKey,

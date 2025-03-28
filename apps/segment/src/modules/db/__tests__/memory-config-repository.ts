@@ -31,7 +31,6 @@ export class MemoryConfigRepository implements ConfigRepository {
     const key = `${args.saleorApiUrl}#${args.appId}`;
 
     this.entries[key] = args.config;
-
     return ok(undefined);
   }
 }

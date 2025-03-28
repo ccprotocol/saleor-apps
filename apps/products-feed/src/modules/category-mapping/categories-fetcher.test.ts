@@ -58,7 +58,7 @@ describe("CategoriesFetcher", () => {
 
     const result = await instance.fetchAllCategories();
 
-    expect(result).toStrictEqual([
+    expect(result).toEqual([
       {
         googleCategoryId: "2",
         id: "cat-1",
@@ -136,7 +136,7 @@ describe("CategoriesFetcher", () => {
      * Some indexes assertions
      */
     [0, 5, 99, 299].forEach((index) => {
-      expect(result[index]).toStrictEqual({
+      expect(result[index]).toEqual({
         googleCategoryId: `${index * 2}`,
         id: `cat-${index}`,
         name: `Category ${index}`,
@@ -164,6 +164,6 @@ describe("CategoriesFetcher", () => {
 
     const result = await instance.fetchAllCategories();
 
-    expect(result).toStrictEqual([]);
+    expect(result).toEqual([]);
   });
 });

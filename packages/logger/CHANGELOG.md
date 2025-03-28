@@ -1,29 +1,5 @@
 # @saleor/apps-logger
 
-## 1.5.4
-
-### Patch Changes
-
-- 1aff5e42: Add new helpers for Next.js app router.
-
-## 1.5.3
-
-### Patch Changes
-
-- a76465fb: Update `@saleor/app-sdk` to `v1.0.0`
-
-## 1.5.2
-
-### Patch Changes
-
-- da9899d5: Cleanup deps, peerDeps & devDependencies for package
-
-## 1.5.1
-
-### Patch Changes
-
-- 996d9be1: Use [PNPM catalogs](https://pnpm.io/catalogs) feature to ensure that dependencies are in sync between different packages in monorepo.
-
 ## 1.5.0
 
 ### Minor Changes

@@ -26,6 +26,6 @@ describe("LoggerContext", () => {
       assertFunction();
     }
 
-    loggerContext.wrapNextApiHandler(() => someExecution(), { initialState: "exists" });
+    loggerContext.wrap(() => someExecution(), { initialState: "exists" });
   });
 });

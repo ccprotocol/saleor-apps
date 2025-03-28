@@ -5,27 +5,21 @@ export const printSaleorProductFields = (fieldName: SaleorProviderFieldsMappingK
     case "variantName": {
       return "Variant Name";
     }
-
     case "channels": {
       return "Channels";
     }
-
     case "productId": {
       return "Product ID";
     }
-
     case "productName": {
       return "Product Name";
     }
-
     case "productSlug": {
       return "Product Slug";
     }
-
     case "variantId": {
       return "Variant ID";
     }
-
     case "sku": {
       return "SKU";
     }

@@ -24,7 +24,6 @@ export const appConfigurationRouter = router({
       const configuration = await getConfig();
 
       logger.debug("Configuration fetched");
-
       return configuration.getRootConfig();
     } catch (e) {
       logger.warn("Can't fetch the configuration", { error: e });
@@ -138,7 +137,6 @@ export const appConfigurationRouter = router({
 
       await appConfigMetadataManager.set(config.serialize());
       logger.info("Attribute map set");
-
       return null;
     }),
   getAttributes: protectedClientProcedure.query(async ({ ctx: { apiClient } }) => {
@@ -171,7 +169,6 @@ export const appConfigurationRouter = router({
       await appConfigMetadataManager.set(config.serialize());
 
       logger.info("image size set");
-
       return null;
     }),
 
@@ -202,7 +199,6 @@ export const appConfigurationRouter = router({
       await appConfigMetadataManager.set(config.serialize());
 
       logger.info("Template title set");
-
       return null;
     }),
 

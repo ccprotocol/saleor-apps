@@ -60,7 +60,6 @@ export class WebhooksProcessorsDelegator {
 
     if (!relatedVariantChannels || relatedVariantChannels.length === 0) {
       this.logger.info("No related channels found for variant, skipping");
-
       return;
     }
 
@@ -70,7 +69,6 @@ export class WebhooksProcessorsDelegator {
 
     if (connectionsToInclude.length === 0) {
       this.logger.info("No connections found, skipping");
-
       return;
     }
 
@@ -80,7 +78,6 @@ export class WebhooksProcessorsDelegator {
 
     if (processors.length === 0) {
       this.logger.info("No processors found, skipping");
-
       return;
     }
 
@@ -109,7 +106,6 @@ export class WebhooksProcessorsDelegator {
 
     if (!relatedVariantChannels || relatedVariantChannels.length === 0) {
       this.logger.info("No related channels found for variant, skipping");
-
       return;
     }
 
@@ -119,7 +115,6 @@ export class WebhooksProcessorsDelegator {
 
     if (connectionsToInclude.length === 0) {
       this.logger.info("No connections found, skipping");
-
       return;
     }
 
@@ -129,7 +124,6 @@ export class WebhooksProcessorsDelegator {
 
     if (processors.length === 0) {
       this.logger.info("No processors found, skipping");
-
       return;
     }
 
@@ -151,7 +145,6 @@ export class WebhooksProcessorsDelegator {
 
     if (connections.length === 0) {
       this.logger.info("No connections found, skipping");
-
       return;
     }
 
@@ -161,7 +154,6 @@ export class WebhooksProcessorsDelegator {
 
     if (processors.length === 0) {
       this.logger.info("No processors found, skipping");
-
       return;
     }
 
@@ -183,7 +175,6 @@ export class WebhooksProcessorsDelegator {
 
     if (connections.length === 0) {
       this.logger.info("No connections found, skipping");
-
       return;
     }
 
@@ -193,7 +184,6 @@ export class WebhooksProcessorsDelegator {
 
     if (processors.length === 0) {
       this.logger.info("No processors found, skipping");
-
       return;
     }
 

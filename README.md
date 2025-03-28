@@ -71,37 +71,8 @@ Some of the Saleor apps are available in separate repositories:
 
 You can find the documentation for saleor/apps on [docs.saleor.io](https://docs.saleor.io/docs/3.x/developer/app-store/development).
 
-### PNPM and corepack
-
-Due to an issue with [outdated signatures in Corepack](https://github.com/nodejs/corepack/issues/612), Corepack should be updated to its latest version first:
-
-```shell
-npm install --global corepack@latest
-```
-
-After that run to install pnpm with proper version:
-
-```shell
-corepack enable pnpm
-```
-
-### Turborepo
-
-This repository uses [Turborepo](https://turbo.build/) remote caching. If you are Saleor employee you can leverage it by running following commands in root of this repository:
-
-```shell
-pnpm dlx turbo login
-pnpm dlx turbo link
-```
-
 ## ADR
 
 This repository uses [architecture decision records](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) to document architectural decisions. You can find them in the `docs/adr` directory.
 
 To add new ADR follow [the guide](https://github.com/npryce/adr-tools).
-
-## Contributing
-
-We love your contributions and do our best to provide you with mentorship and support. If you are looking for an issue to tackle, take a look at issues labeled [`Good first issue`](https://github.com/saleor/apps/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+) and [`Help wanted`](https://github.com/saleor/apps/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22).
-
-If nothing grabs your attention, check [our roadmap](https://saleor.io/roadmap) or [start a Discord discussion](https://saleor.io/discord) about a feature you'd like to see. Make sure to read our [Contribution Guidelines](http://docs.saleor.io/developer/community/contributing) before opening a PR or issue.

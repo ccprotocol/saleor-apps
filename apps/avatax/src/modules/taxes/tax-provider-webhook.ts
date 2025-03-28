@@ -1,4 +1,4 @@
-import { SyncWebhookResponsesMap } from "@saleor/app-sdk/handlers/shared";
+import { SyncWebhookResponsesMap } from "@saleor/app-sdk/handlers/next";
 
 export type CalculateTaxesResponse = SyncWebhookResponsesMap["ORDER_CALCULATE_TAXES"];
 

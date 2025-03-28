@@ -1,4 +1,4 @@
-import { addBreadcrumb, captureException } from "@sentry/nextjs";
+import * as Sentry from "@sentry/nextjs";
 import { ClientAPI, createClient, Environment } from "contentful-management";
 
 import { createLogger } from "@/logger";
@@ -265,7 +265,7 @@ export class ContentfulClient {
 
       if (entries.items.length > 0) {
         this.logger.info("Found existing entry, will update");
-        addBreadcrumb({
+        Sentry.addBreadcrumb({
           message: "Found entry for variant",
           level: "debug",
         });
@@ -273,7 +273,7 @@ export class ContentfulClient {
         return this.updateProductVariant({ configuration, variant });
       } else {
         this.logger.info("No existing entry found, will create");
-        addBreadcrumb({
+        Sentry.addBreadcrumb({
           message: "Did not found entry for variant",
           level: "debug",
         });
@@ -282,7 +282,7 @@ export class ContentfulClient {
       }
     } catch (err) {
       this.logger.error("Error during the upsert", { error: err });
-      captureException(err);
+      Sentry.captureException(err);
 
       throw err;
     }

@@ -6,6 +6,7 @@ import { SegmentAPLEntityType, SegmentMainTable } from "@/modules/db/segment-mai
 export class DynamoAPLMapper {
   dynamoEntityToAuthData(entity: FormattedItem<SegmentAPLEntityType>): AuthData {
     return {
+      domain: entity.domain,
       token: entity.token,
       saleorApiUrl: entity.saleorApiUrl,
       appId: entity.appId,
@@ -17,6 +18,7 @@ export class DynamoAPLMapper {
     return {
       PK: SegmentMainTable.getAPLPrimaryKey({ saleorApiUrl: authData.saleorApiUrl }),
       SK: SegmentMainTable.getAPLSortKey(),
+      domain: authData.domain,
       token: authData.token,
       saleorApiUrl: authData.saleorApiUrl,
       appId: authData.appId,

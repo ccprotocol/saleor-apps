@@ -68,7 +68,6 @@ export class SmtpConfigurationService implements IGetSmtpConfiguration {
 
           return okAsync({ configurations: [] });
         }
-
         return okAsync(data);
       })
       .andThen((data) => {
@@ -125,7 +124,6 @@ export class SmtpConfigurationService implements IGetSmtpConfiguration {
         return true;
       }
     }
-
     return false;
   }
 

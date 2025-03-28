@@ -28,7 +28,6 @@ const useUploadState = () => {
   const incrementTotal = (total: number) => {
     setUploadState((state) => {
       if (state.type !== "uploading") return state;
-
       return {
         ...state,
         progress: {
@@ -42,7 +41,6 @@ const useUploadState = () => {
   const incrementCurrent = (current: number) => {
     setUploadState((state) => {
       if (state.type !== "uploading") return state;
-
       return {
         ...state,
         progress: {
@@ -60,7 +58,6 @@ const useUploadState = () => {
   const finishingUpload = () => {
     setUploadState((current) => {
       if (current.type !== "uploading") return current;
-
       return { ...current, isFinishing: true };
     });
 
